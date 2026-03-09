@@ -1,0 +1,967 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DAP Solidarity — Production 2026</title>
+<script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+  background: #f0f2f5;
+  color: #1a1a2e;
+  min-height: 100vh;
+}
+:root {
+  --navy:   #1a1a2e;
+  --blue:   #0f3460;
+  --gold:   #e8b84b;
+  --green:  #10b981;
+  --red:    #ef4444;
+  --orange: #f59e0b;
+  --border: #e2e8f0;
+  --text-s: #6b7280;
+}
+
+/* ── HEADER ── */
+.header {
+  background: linear-gradient(135deg, var(--navy), var(--blue));
+  padding: 0 32px;
+  display: flex; align-items: center; justify-content: space-between;
+  height: 64px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.2);
+  position: sticky; top: 0; z-index: 100;
+}
+.header-left { display: flex; align-items: center; gap: 16px; }
+.header-logo { height: 36px; background: white; padding: 5px 12px; border-radius: 7px; }
+.header-title { color: white; font-size: 16px; font-weight: 700; }
+.header-title span { color: var(--gold); }
+.header-right { display: flex; align-items: center; gap: 12px; }
+.file-info { color: rgba(255,255,255,0.6); font-size: 12px; max-width: 220px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.reset-btn {
+  background: rgba(255,255,255,0.1);
+  border: 1px solid rgba(255,255,255,0.2);
+  color: white; padding: 8px 16px; border-radius: 8px;
+  cursor: pointer; font-size: 13px; font-weight: 600;
+  transition: background 0.2s;
+}
+.reset-btn:hover { background: rgba(255,255,255,0.2); }
+.ref-btn {
+  background: rgba(232,184,75,0.15);
+  border: 1px solid rgba(232,184,75,0.4);
+  color: var(--gold); padding: 8px 16px; border-radius: 8px;
+  cursor: pointer; font-size: 13px; font-weight: 600;
+  transition: background 0.2s; position: relative; overflow: hidden;
+}
+.ref-btn:hover { background: rgba(232,184,75,0.25); }
+.ref-btn input[type="file"] {
+  position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%;
+}
+.ref-loaded { color: #86efac !important; border-color: rgba(134,239,172,0.4) !important; background: rgba(134,239,172,0.1) !important; }
+
+/* ── UPLOAD ── */
+.upload-section {
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  min-height: calc(100vh - 64px); padding: 40px;
+}
+.upload-card {
+  background: white; border-radius: 20px;
+  padding: 56px 72px; text-align: center;
+  box-shadow: 0 4px 24px rgba(26,26,46,0.08);
+  max-width: 520px; width: 100%;
+}
+.upload-icon { font-size: 56px; margin-bottom: 18px; }
+.upload-title { font-size: 22px; font-weight: 800; color: var(--navy); margin-bottom: 8px; }
+.upload-sub { color: var(--text-s); font-size: 14px; margin-bottom: 28px; line-height: 1.6; }
+.drop-zone {
+  border: 2px dashed var(--border); border-radius: 14px;
+  padding: 32px; cursor: pointer; transition: all 0.2s; position: relative;
+}
+.drop-zone:hover, .drop-zone.drag-over { border-color: var(--gold); background: #fefce8; }
+.drop-zone input[type="file"] {
+  position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%;
+}
+.drop-btn {
+  display: inline-block;
+  background: linear-gradient(135deg, var(--navy), var(--blue));
+  color: white; padding: 12px 28px; border-radius: 10px;
+  font-size: 14px; font-weight: 700; margin-bottom: 10px;
+}
+.drop-text { font-size: 13px; color: var(--text-s); }
+.upload-note {
+  margin-top: 20px; font-size: 12px; color: var(--text-s);
+  padding: 12px 16px; background: #f9fafb; border-radius: 8px; line-height: 1.7;
+  text-align: left;
+}
+
+/* ── MAIN ── */
+.main { max-width: 1380px; margin: 0 auto; padding: 28px 24px; }
+
+/* ── KPI GRID ── */
+.kpi-grid {
+  display: grid; grid-template-columns: repeat(4, 1fr);
+  gap: 16px; margin-bottom: 20px;
+}
+.kpi-card {
+  background: white; border-radius: 14px; padding: 20px;
+  border: 1px solid var(--border);
+  box-shadow: 0 1px 6px rgba(26,26,46,0.05);
+}
+.kpi-label { font-size: 11px; color: var(--text-s); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; }
+.kpi-value { font-size: 28px; font-weight: 800; color: var(--navy); line-height: 1; }
+.kpi-sub   { font-size: 12px; color: var(--text-s); margin-top: 6px; }
+.kpi-card.gold-accent   { border-top: 3px solid var(--gold); }
+.kpi-card.green-accent  { border-top: 3px solid var(--green); }
+.kpi-card.blue-accent   { border-top: 3px solid #3b82f6; }
+.kpi-card.orange-accent { border-top: 3px solid var(--orange); }
+
+/* ── BRANCHES ── */
+.branche-grid {
+  display: grid; grid-template-columns: repeat(4, 1fr);
+  gap: 12px; margin-bottom: 20px;
+}
+.branche-card {
+  background: white; border-radius: 12px; padding: 16px;
+  border: 1px solid var(--border); box-shadow: 0 1px 4px rgba(26,26,46,0.04);
+}
+.branche-name { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; }
+.branche-count { font-size: 26px; font-weight: 800; color: var(--navy); }
+.branche-prime { font-size: 12px; color: var(--text-s); margin-top: 3px; }
+.b-auto     { border-top: 3px solid #3b82f6; }
+.b-incendie { border-top: 3px solid #f59e0b; }
+.b-velo     { border-top: 3px solid #10b981; }
+.b-pj       { border-top: 3px solid #8b5cf6; }
+.b-auto     .branche-name { color: #1d4ed8; }
+.b-incendie .branche-name { color: #92400e; }
+.b-velo     .branche-name { color: #065f46; }
+.b-pj       .branche-name { color: #5b21b6; }
+
+/* ── NOTE ── */
+.note-card {
+  background: #fefce8; border: 1px solid #fde68a;
+  border-radius: 12px; padding: 14px 18px;
+  font-size: 13px; color: #78350f; margin-bottom: 20px; line-height: 1.6;
+}
+
+/* ── PALIER BANNER ── */
+.palier-banner {
+  background: white; border-radius: 14px;
+  border: 1px solid var(--border); box-shadow: 0 1px 6px rgba(26,26,46,0.05);
+  margin-bottom: 16px; padding: 20px 24px;
+}
+.palier-banner-top {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 14px; flex-wrap: wrap; gap: 12px;
+}
+.palier-banner-title { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-s); }
+.palier-banner-prod  { font-size: 22px; font-weight: 800; color: var(--navy); }
+.palier-banner-next  { font-size: 13px; color: var(--text-s); }
+.palier-badge {
+  display: inline-flex; align-items: center; gap: 4px;
+  font-size: 12px; font-weight: 700; padding: 4px 12px; border-radius: 100px;
+  white-space: nowrap;
+}
+.palier-0 { background: #f3f4f6; color: #6b7280; }
+.palier-1 { background: #fef3c7; color: #92400e; }
+.palier-2 { background: #dbeafe; color: #1d4ed8; }
+.palier-3 { background: #dcfce7; color: #15803d; }
+
+/* Barre avec jalons */
+.palier-bar-wrap { position: relative; margin-bottom: 8px; }
+.bar-track-big { height: 10px; background: #f0f2f5; border-radius: 100px; overflow: visible; position: relative; }
+.bar-fill-big  { height: 10px; border-radius: 100px; transition: width 0.8s ease; position: absolute; top: 0; left: 0; }
+.bar-milestone {
+  position: absolute; top: -4px;
+  width: 2px; height: 18px; background: #d1d5db;
+}
+.bar-milestone-label {
+  position: absolute; top: 18px;
+  font-size: 10px; color: var(--text-s); white-space: nowrap;
+  transform: translateX(-50%);
+}
+.palier-milestones { display: flex; justify-content: space-between; margin-top: 22px; }
+.palier-milestone-item { text-align: center; font-size: 11px; color: var(--text-s); }
+.palier-milestone-item.reached { color: var(--green); font-weight: 700; }
+.palier-milestone-item .ms-label { font-weight: 700; display: block; }
+
+/* ── SP GLOBAL + Classement header ── */
+.controls-row {
+  background: white; border-radius: 14px; padding: 14px 20px;
+  border: 1px solid var(--border); box-shadow: 0 1px 6px rgba(26,26,46,0.05);
+  margin-bottom: 20px; display: flex; align-items: center; gap: 16px; flex-wrap: wrap;
+}
+.sp-global-label { font-size: 13px; font-weight: 700; color: var(--navy); white-space: nowrap; }
+.sp-global-hint  { font-size: 12px; color: var(--text-s); margin-left: auto; }
+
+/* ── CARD ── */
+.card {
+  background: white; border-radius: 14px;
+  border: 1px solid var(--border); overflow: hidden;
+  box-shadow: 0 1px 6px rgba(26,26,46,0.05); margin-bottom: 24px;
+}
+.card-header {
+  padding: 16px 20px; border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: space-between;
+}
+.card-title { font-size: 14px; font-weight: 700; color: var(--navy); }
+.card-sub   { font-size: 12px; color: var(--text-s); }
+
+/* ── RANK TABLE ── */
+.table-wrap { overflow-x: auto; }
+.rank-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.rank-table thead th {
+  background: var(--navy); color: white;
+  padding: 10px 14px; text-align: left;
+  font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600;
+  white-space: nowrap;
+}
+.rank-table tbody tr { border-bottom: 1px solid var(--border); transition: background 0.15s; }
+.rank-table tbody tr.detail-row { border-bottom: none; }
+.rank-table tbody tr:hover { background: #fafafa; }
+.rank-table tbody tr.detail-row:hover { background: #f9fafb; }
+.rank-table tbody td { padding: 12px 14px; color: var(--navy); vertical-align: middle; }
+
+.rank-num { font-size: 20px; text-align: center; }
+.gest-name  { font-weight: 700; font-size: 14px; }
+.gest-site  { font-size: 11px; color: var(--text-s); margin-top: 2px; }
+.gest-count { font-size: 11px; color: var(--text-s); margin-top: 2px; }
+
+.amount-main { font-weight: 700; font-size: 14px; }
+.amount-sub  { font-size: 11px; color: var(--text-s); margin-top: 2px; }
+
+/* S/P */
+.sp-wrap { display: flex; align-items: center; gap: 6px; margin-bottom: 5px; }
+.sp-input {
+  width: 62px; padding: 5px 8px;
+  border: 1.5px solid var(--border); border-radius: 7px;
+  font-size: 13px; font-weight: 600; color: var(--navy);
+  text-align: center; outline: none;
+}
+.sp-input:focus { border-color: var(--navy); }
+.sp-label { font-size: 11px; color: var(--text-s); }
+.sp-mult {
+  display: inline-flex; align-items: center;
+  font-size: 11px; font-weight: 700; padding: 2px 8px;
+  border-radius: 100px; white-space: nowrap;
+}
+.sp-mult.green  { background: #dcfce7; color: #15803d; }
+.sp-mult.orange { background: #fef3c7; color: #92400e; }
+.sp-mult.red    { background: #fee2e2; color: #b91c1c; }
+
+/* FDG */
+.fdg-amount { font-size: 17px; font-weight: 800; color: var(--green); }
+.fdg-na     { font-size: 13px; color: var(--text-s); }
+.fdg-sub    { font-size: 10px; color: var(--text-s); margin-top: 3px; }
+
+/* Growth */
+.growth-up   { font-size: 14px; font-weight: 700; color: #15803d; }
+.growth-down { font-size: 14px; font-weight: 700; color: #b91c1c; }
+.growth-na   { font-size: 12px; color: var(--text-s); }
+.growth-sub  { font-size: 11px; color: var(--text-s); margin-top: 2px; }
+
+/* Warn */
+.warn-badge {
+  display: inline-flex; align-items: center; gap: 3px;
+  font-size: 10px; font-weight: 600; padding: 2px 7px; border-radius: 100px;
+  white-space: nowrap; margin-bottom: 3px;
+}
+.warn-ok  { background: #dcfce7; color: #15803d; }
+.warn-bad { background: #fef3c7; color: #92400e; }
+
+/* Expand */
+.expand-btn {
+  background: none; border: none; cursor: pointer;
+  color: var(--text-s); font-size: 14px; padding: 6px 10px;
+  border-radius: 6px; transition: background 0.15s;
+}
+.expand-btn:hover { background: #f0f2f5; }
+
+/* Detail row */
+.detail-row { display: none; background: #f9fafb; }
+.detail-row.open { display: table-row; }
+.detail-inner { padding: 4px 14px 16px 54px; }
+.detail-table { width: 100%; border-collapse: collapse; font-size: 12px; margin-top: 8px; }
+.detail-table td { padding: 6px 10px; border-bottom: 1px solid var(--border); color: #374151; }
+.detail-table tr:last-child td { border-bottom: none; }
+.detail-table thead td { font-weight: 600; font-size: 11px; color: var(--text-s); text-transform: uppercase; letter-spacing: 0.4px; border-bottom: 2px solid var(--border); background: transparent; }
+.branche-tag {
+  display: inline-block; padding: 2px 8px; border-radius: 100px;
+  font-size: 10px; font-weight: 700;
+}
+
+/* Convention recap */
+.conv-card {
+  background: white; border-radius: 14px; padding: 20px;
+  border: 1px solid var(--border); box-shadow: 0 1px 6px rgba(26,26,46,0.05);
+  margin-bottom: 24px; font-size: 13px; color: var(--navy);
+}
+.conv-title { font-size: 13px; font-weight: 700; color: var(--navy); margin-bottom: 12px; }
+.conv-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+.conv-section { }
+.conv-section h4 { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-s); margin-bottom: 8px; }
+.conv-row { display: flex; justify-content: space-between; padding: 4px 0; border-bottom: 1px solid #f0f2f5; font-size: 12px; }
+.conv-row:last-child { border-bottom: none; }
+.conv-val { font-weight: 700; }
+
+@media (max-width: 1024px) {
+  .kpi-grid { grid-template-columns: repeat(2, 1fr); }
+  .branche-grid { grid-template-columns: repeat(2, 1fr); }
+  .conv-grid { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="header">
+  <div class="header-left">
+    <img src="assets/logo-dap.png" alt="DAP" class="header-logo" onerror="this.style.display='none'">
+    <div class="header-title">DAP Solidarity — <span>Production 2026</span></div>
+  </div>
+  <div class="header-right">
+    <span class="file-info" id="fileInfo"></span>
+    <button class="ref-btn" id="refBtn" style="display:none">
+      📂 + Référence 2025
+      <input type="file" accept=".xls,.xlsx" id="refInput" onchange="handleRefFile(this.files[0])">
+    </button>
+    <button class="reset-btn" id="resetBtn" onclick="resetDashboard()" style="display:none">↩ Nouveau fichier</button>
+  </div>
+</div>
+
+<!-- UPLOAD -->
+<div class="upload-section" id="uploadSection">
+  <div class="upload-card">
+    <div class="upload-icon">📊</div>
+    <div class="upload-title">Suivi Production AEDES 2026</div>
+    <div class="upload-sub">Importez le fichier XLS de Julien pour visualiser le classement de votre équipe et simuler les frais de gestion selon la convention PAECT.</div>
+
+    <div class="drop-zone" id="dropZone">
+      <input type="file" accept=".xls,.xlsx" id="fileInput" onchange="handleFile(this.files[0])">
+      <div class="drop-btn">📂 Choisir le fichier XLS</div>
+      <div class="drop-text">ou glissez-déposez le fichier ici</div>
+    </div>
+
+    <div class="upload-note">
+      📌 <strong>Convention PAECT 2026</strong> — Branches couvertes : Auto · Incendie · Vélo · Protection Juridique<br>
+      🔒 Le fichier n'est pas envoyé sur internet. Tout le traitement se fait dans votre navigateur.
+    </div>
+  </div>
+</div>
+
+<!-- DASHBOARD -->
+<div class="main" id="dashboard" style="display:none">
+
+  <div class="note-card" id="noteCard"></div>
+
+  <!-- KPIs -->
+  <div class="kpi-grid">
+    <div class="kpi-card gold-accent">
+      <div class="kpi-label">Polices actives</div>
+      <div class="kpi-value" id="kpi-polices">—</div>
+      <div class="kpi-sub" id="kpi-polices-sub"></div>
+    </div>
+    <div class="kpi-card blue-accent">
+      <div class="kpi-label">Prime portefeuille</div>
+      <div class="kpi-value" id="kpi-portefeuille">—</div>
+      <div class="kpi-sub">Total primes HT actives</div>
+    </div>
+    <div class="kpi-card green-accent">
+      <div class="kpi-label">Prime production 2026</div>
+      <div class="kpi-value" id="kpi-production">—</div>
+      <div class="kpi-sub">Nouvelles affaires 2026</div>
+    </div>
+    <div class="kpi-card orange-accent">
+      <div class="kpi-label">FDG projetés (équipe)</div>
+      <div class="kpi-value" id="kpi-fdg">—</div>
+      <div class="kpi-sub">Saisir S/P pour calculer</div>
+    </div>
+  </div>
+
+  <!-- BRANCHES -->
+  <div class="branche-grid">
+    <div class="branche-card b-auto">
+      <div class="branche-name">Auto</div>
+      <div class="branche-count" id="b-auto-count">—</div>
+      <div class="branche-prime" id="b-auto-prime"></div>
+    </div>
+    <div class="branche-card b-incendie">
+      <div class="branche-name">Incendie</div>
+      <div class="branche-count" id="b-incendie-count">—</div>
+      <div class="branche-prime" id="b-incendie-prime"></div>
+    </div>
+    <div class="branche-card b-velo">
+      <div class="branche-name">Vélo</div>
+      <div class="branche-count" id="b-velo-count">—</div>
+      <div class="branche-prime" id="b-velo-prime"></div>
+    </div>
+    <div class="branche-card b-pj">
+      <div class="branche-name">Protection Juridique</div>
+      <div class="branche-count" id="b-pj-count">—</div>
+      <div class="branche-prime" id="b-pj-prime"></div>
+    </div>
+  </div>
+
+  <!-- PALIER COLLECTIF BANNIÈRE -->
+  <div class="palier-banner" id="palierBanner"></div>
+
+  <!-- S/P + CONTRÔLES -->
+  <div class="controls-row">
+    <span class="sp-global-label">📊 Ratio S/P équipe :</span>
+    <input type="number" id="spGlobalInput" class="sp-input"
+      placeholder="ex: 38" min="0" max="100" step="1"
+      oninput="updateSPGlobal(this.value)">
+    <span class="sp-label">%</span>
+    <span class="sp-mult orange" id="spGlobalMult">—</span>
+    <span class="sp-global-hint">S/P collectif appliqué à tous les gestionnaires</span>
+  </div>
+
+  <!-- CLASSEMENT -->
+  <div class="card">
+    <div class="card-header">
+      <div class="card-title">🏆 Classement des gestionnaires</div>
+      <div class="card-sub">Cliquez sur ▶ pour voir les polices</div>
+    </div>
+    <div class="table-wrap">
+      <table class="rank-table">
+        <thead>
+          <tr id="rankHead">
+            <th style="text-align:center; width:48px">#</th>
+            <th>Gestionnaire</th>
+            <th>Portefeuille HT</th>
+            <th>Production 2026</th>
+            <th style="min-width:130px">FDG projetés</th>
+            <th id="th-growth" style="display:none; min-width:120px">Croissance</th>
+            <th>Conditions</th>
+            <th style="width:40px"></th>
+          </tr>
+        </thead>
+        <tbody id="rankBody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- CONVENTION RECAP -->
+  <div class="conv-card">
+    <div class="conv-title">📋 Rappel — Barèmes Convention PAECT 2026</div>
+    <div class="conv-grid">
+      <div class="conv-section">
+        <h4>Prime production (collective)</h4>
+        <div class="conv-row"><span>> 80.000 €</span><span class="conv-val">1% du portefeuille</span></div>
+        <div class="conv-row"><span>> 100.000 €</span><span class="conv-val">2% du portefeuille</span></div>
+        <div class="conv-row"><span>> 150.000 €</span><span class="conv-val">3% du portefeuille</span></div>
+      </div>
+      <div class="conv-section">
+        <h4>Croissance portefeuille</h4>
+        <div class="conv-row"><span>> 10%</span><span class="conv-val">+ 2% du portefeuille</span></div>
+        <div class="conv-row"><span>> 20%</span><span class="conv-val">+ 4% du portefeuille</span></div>
+        <div class="conv-row"><span>> 30%</span><span class="conv-val">+ 5% du portefeuille</span></div>
+      </div>
+      <div class="conv-section">
+        <h4>Multiplicateur S/P</h4>
+        <div class="conv-row"><span>S/P > 55%</span><span class="conv-val">× 0,25</span></div>
+        <div class="conv-row"><span>S/P < 55%</span><span class="conv-val">× 0,50</span></div>
+        <div class="conv-row"><span>S/P < 45%</span><span class="conv-val">× 1,00</span></div>
+        <div class="conv-row"><span>S/P < 35%</span><span class="conv-val">× 1,25</span></div>
+        <div class="conv-row"><span>S/P < 30%</span><span class="conv-val">× 1,50</span></div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// ── STATE ──────────────────────────────────────────────────────────────────
+let rawRows = [];
+let gestMap = {};        // name → gestionnaire object
+let refMap  = {};        // name → primePortefeuille 31/12/2025
+let spGlobalValue = '';  // S/P collectif saisi
+
+// ── UTILS ──────────────────────────────────────────────────────────────────
+const fmt = n => new Intl.NumberFormat('fr-BE', { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(n);
+const fmtEur = n => fmt(n) + ' €';
+
+function excelDateToYear(v) {
+  if (!v) return null;
+  if (typeof v === 'number') {
+    const d = new Date(Math.round((v - 25569) * 86400 * 1000));
+    return isNaN(d) ? null : d.getFullYear();
+  }
+  if (typeof v === 'string') {
+    const m = v.match(/(\d{2})\/(\d{2})\/(\d{4})/);
+    if (m) return parseInt(m[3]);
+    const d = new Date(v);
+    return isNaN(d) ? null : d.getFullYear();
+  }
+  return null;
+}
+
+function isActive(etat) {
+  if (!etat) return true;
+  const e = String(etat).toLowerCase();
+  return !e.includes('résiliation') && !e.includes('resiliation') &&
+         !e.includes('mise sans suite') && !e.includes('suspension');
+}
+
+const BRANCH_LABEL = { auto: 'Auto', incendie: 'Incendie', velo: 'Vélo', pj: 'PJ', autre: 'Autre' };
+const BRANCH_BG    = { auto: '#dbeafe', incendie: '#fef3c7', velo: '#d1fae5', pj: '#ede9fe', autre: '#f3f4f6' };
+const BRANCH_COLOR = { auto: '#1d4ed8', incendie: '#92400e', velo: '#065f46', pj: '#5b21b6', autre: '#374151' };
+
+function getBranche(produit) {
+  if (!produit) return 'autre';
+  const p = String(produit).trim();
+  if (p === 'PJ Auto' || /^PJ\s/i.test(p) || p.toUpperCase() === 'PJ') return 'pj';
+  if (/^vélo$/i.test(p) || /^velo$/i.test(p)) return 'velo';
+  if (['P.LiZ', 'P-Home', 'PAC-AEDES'].includes(p)) return 'incendie';
+  if (/^P\d+$/.test(p) || p === 'Oldtimer' || p === 'CARES') return 'auto';
+  return 'autre';
+}
+
+// ── CONVENTION LOGIC ──────────────────────────────────────────────────────
+function getProdPalier(prod) {
+  if (prod > 150000) return { rate: 0.03, pct: 3, label: 'Palier 3%', cls: 'palier-3' };
+  if (prod > 100000) return { rate: 0.02, pct: 2, label: 'Palier 2%', cls: 'palier-2' };
+  if (prod >  80000) return { rate: 0.01, pct: 1, label: 'Palier 1%', cls: 'palier-1' };
+  return { rate: 0, pct: 0, label: 'Aucun palier', cls: 'palier-0' };
+}
+
+function getSPInfo(spVal) {
+  if (spVal === '' || spVal === null || spVal === undefined) {
+    return { mult: null, label: '—', cls: 'orange' };
+  }
+  const v = parseFloat(spVal) / 100;
+  if (isNaN(v)) return { mult: null, label: '—', cls: 'orange' };
+  if (v < 0.30) return { mult: 1.50, label: '× 1,50', cls: 'green' };
+  if (v < 0.35) return { mult: 1.25, label: '× 1,25', cls: 'green' };
+  if (v < 0.45) return { mult: 1.00, label: '× 1,00', cls: 'green' };
+  if (v < 0.55) return { mult: 0.50, label: '× 0,50', cls: 'orange' };
+  return { mult: 0.25, label: '× 0,25', cls: 'red' };
+}
+
+function calcFDG(g) {
+  const totalProd = Object.values(gestMap).reduce((s, x) => s + x.primeProduction, 0);
+  const palier    = getProdPalier(totalProd);
+  const sp        = getSPInfo(spGlobalValue);
+  if (palier.rate === 0 || sp.mult === null) return null;
+  return palier.rate * sp.mult * g.primePortefeuille;
+}
+
+function checkConditions(g) {
+  const w = [];
+  if (g.primePortefeuille < 75000) w.push('Portef. < 75k€');
+  if (g.primeProduction < 20000)   w.push('Prod. < 20k€');
+  return w;
+}
+
+// ── DRAG & DROP ───────────────────────────────────────────────────────────
+const dropZone = document.getElementById('dropZone');
+dropZone.addEventListener('dragover',  e => { e.preventDefault(); dropZone.classList.add('drag-over'); });
+dropZone.addEventListener('dragleave', () => dropZone.classList.remove('drag-over'));
+dropZone.addEventListener('drop', e => {
+  e.preventDefault();
+  dropZone.classList.remove('drag-over');
+  if (e.dataTransfer.files[0]) handleFile(e.dataTransfer.files[0]);
+});
+
+// ── FILE HANDLERS ─────────────────────────────────────────────────────────
+function handleFile(file) {
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    try {
+      const data = new Uint8Array(e.target.result);
+      const wb = XLSX.read(data, { type: 'array', cellDates: false });
+      const ws = wb.Sheets[wb.SheetNames[0]];
+      rawRows = XLSX.utils.sheet_to_json(ws, { header: 1, defval: '' });
+      processData(file.name);
+      document.getElementById('fileInfo').textContent = '📁 ' + file.name;
+      document.getElementById('resetBtn').style.display = 'block';
+      document.getElementById('refBtn').style.display = 'block';
+    } catch(err) {
+      alert('Erreur lors de la lecture du fichier : ' + err.message);
+    }
+  };
+  reader.readAsArrayBuffer(file);
+}
+
+function handleRefFile(file) {
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    try {
+      const data = new Uint8Array(e.target.result);
+      const wb = XLSX.read(data, { type: 'array', cellDates: false });
+      const ws = wb.Sheets[wb.SheetNames[0]];
+      const rows = XLSX.utils.sheet_to_json(ws, { header: 1, defval: '' });
+      processRefData(rows);
+      const btn = document.getElementById('refBtn');
+      btn.classList.add('ref-loaded');
+      btn.childNodes[0].textContent = '✓ Réf. 2025 chargée ';
+      document.getElementById('th-growth').style.display = '';
+      renderRanking(getSorted());
+    } catch(err) {
+      alert('Erreur lors de la lecture du fichier référence : ' + err.message);
+    }
+  };
+  reader.readAsArrayBuffer(file);
+}
+
+// ── PROCESS ───────────────────────────────────────────────────────────────
+function processData(filename) {
+  if (rawRows.length < 2) return;
+  gestMap = {};
+
+  rawRows.slice(1).forEach(row => {
+    if (!row[0] && !row[2] && !row[11]) return;
+
+    const preneur  = String(row[0]  || '').trim();
+    const produit  = String(row[3]  || '').trim();
+    const dateSosc = row[4];
+    const primeHT  = parseFloat(row[6]) || 0;
+    const etat     = String(row[9]  || '').trim();
+    const contact  = String(row[11] || '').trim() || 'Non assigné';
+    const site     = String(row[12] || '').trim();
+
+    if (!gestMap[contact]) {
+      gestMap[contact] = {
+        name: contact, site,
+        polices: [],
+        primePortefeuille: 0,
+        primeProduction: 0,
+        branchCount: { auto: 0, incendie: 0, velo: 0, pj: 0, autre: 0 }
+      };
+    }
+
+    const g       = gestMap[contact];
+    const active  = isActive(etat);
+    const branche = getBranche(produit);
+    const annee   = excelDateToYear(dateSosc);
+
+    g.polices.push({ preneur, produit, branche, annee, primeHT, etat, active });
+
+    if (active) {
+      g.primePortefeuille += primeHT;
+      g.branchCount[branche]++;
+    }
+    if (active && annee === 2026) {
+      g.primeProduction += primeHT;
+    }
+  });
+
+  renderDashboard(filename);
+}
+
+function processRefData(rows) {
+  refMap = {};
+  rows.slice(1).forEach(row => {
+    if (!row[11]) return;
+    const contact = String(row[11] || '').trim();
+    const primeHT = parseFloat(row[6]) || 0;
+    const etat    = String(row[9]  || '').trim();
+    if (!contact || !isActive(etat)) return;
+    refMap[contact] = (refMap[contact] || 0) + primeHT;
+  });
+}
+
+// ── RENDER ────────────────────────────────────────────────────────────────
+function renderDashboard(filename) {
+  document.getElementById('uploadSection').style.display = 'none';
+  document.getElementById('dashboard').style.display = 'block';
+
+  const sorted = getSorted();
+  renderNote(filename, sorted);
+  renderKPIs(sorted);
+  renderBranches();
+  renderPalierBanner();
+  renderRanking(sorted);
+}
+
+function getSorted() {
+  return Object.values(gestMap).sort((a, b) => {
+    if (b.primeProduction !== a.primeProduction) return b.primeProduction - a.primeProduction;
+    return b.primePortefeuille - a.primePortefeuille;
+  });
+}
+
+function renderNote(filename, sorted) {
+  const totalProd = sorted.reduce((s, g) => s + g.primeProduction, 0);
+  let msg;
+  if (!totalProd) {
+    msg = `<strong>📁 ${filename}</strong> — ⚠️ Aucune police souscrite en 2026 détectée. Le fichier contient peut-être uniquement des données 2025.`;
+  } else {
+    const hasRef = Object.keys(refMap).length > 0;
+    msg = `<strong>📁 ${filename}</strong> — ${sorted.length} gestionnaire${sorted.length > 1 ? 's' : ''} · Palier et S/P sont collectifs (équipe entière) · ${hasRef ? '✓ Fichier référence 2025 chargé — colonne Croissance activée' : 'Chargez le fichier référence 31/12/2025 via le bouton dans le header pour calculer la croissance'}`;
+  }
+  document.getElementById('noteCard').innerHTML = msg;
+}
+
+function renderKPIs(sorted) {
+  const totalActives = sorted.reduce((s, g) => s + g.polices.filter(p => p.active).length, 0);
+  const totalPortef  = sorted.reduce((s, g) => s + g.primePortefeuille, 0);
+  const totalProd    = sorted.reduce((s, g) => s + g.primeProduction, 0);
+  const fdgValues    = sorted.map(g => calcFDG(g)).filter(v => v !== null);
+  const totalFDG     = fdgValues.length ? fdgValues.reduce((s, v) => s + v, 0) : null;
+
+  document.getElementById('kpi-polices').textContent     = totalActives;
+  document.getElementById('kpi-polices-sub').textContent = `sur ${rawRows.length - 1} polices totales`;
+  document.getElementById('kpi-portefeuille').textContent = fmtEur(totalPortef);
+  document.getElementById('kpi-production').textContent   = fmtEur(totalProd);
+  document.getElementById('kpi-fdg').textContent          = totalFDG !== null ? fmtEur(totalFDG) : '—';
+}
+
+function renderBranches() {
+  const b = { auto: {c:0,p:0}, incendie: {c:0,p:0}, velo: {c:0,p:0}, pj: {c:0,p:0} };
+
+  rawRows.slice(1).forEach(row => {
+    if (!isActive(String(row[9] || ''))) return;
+    const branche = getBranche(String(row[3] || ''));
+    const prime   = parseFloat(row[6]) || 0;
+    if (b[branche]) { b[branche].c++; b[branche].p += prime; }
+  });
+
+  for (const [key, data] of Object.entries(b)) {
+    document.getElementById(`b-${key}-count`).textContent = data.c;
+    document.getElementById(`b-${key}-prime`).textContent  = fmtEur(data.p);
+  }
+}
+
+function renderPalierBanner() {
+  const totalProd = Object.values(gestMap).reduce((s, x) => s + x.primeProduction, 0);
+  const palier    = getProdPalier(totalProd);
+
+  // Calcul position absolue dans la barre globale [0 → 150k]
+  const MAX = 150000;
+  const pct  = Math.min(100, totalProd / MAX * 100);
+  const barColor = palier.cls === 'palier-0' ? '#9ca3af'
+                 : palier.cls === 'palier-1' ? '#f59e0b'
+                 : palier.cls === 'palier-2' ? '#3b82f6'
+                 : '#10b981';
+
+  // Jalons
+  const milestones = [
+    { val: 80000,  label: '80 k€',  pct: 80000/MAX*100,  tier: 'Palier 1%' },
+    { val: 100000, label: '100 k€', pct: 100000/MAX*100, tier: 'Palier 2%' },
+    { val: 150000, label: '150 k€', pct: 100,            tier: 'Palier 3%' },
+  ];
+
+  // Texte de progression
+  let nextText;
+  if (totalProd <= 80000)   nextText = `encore <strong>${fmtEur(80000 - totalProd)}</strong> pour atteindre le Palier 1%`;
+  else if (totalProd <= 100000) nextText = `encore <strong>${fmtEur(100000 - totalProd)}</strong> pour atteindre le Palier 2%`;
+  else if (totalProd <= 150000) nextText = `encore <strong>${fmtEur(150000 - totalProd)}</strong> pour atteindre le Palier 3%`;
+  else nextText = '✓ Palier maximum atteint';
+
+  const milestonesHTML = milestones.map(m => {
+    const reached = totalProd >= m.val;
+    return `
+      <div class="bar-milestone" style="left:${m.pct}%"></div>
+      <div class="bar-milestone-label" style="left:${m.pct}%">${m.label}</div>
+    `;
+  }).join('');
+
+  const milestoneItems = milestones.map(m => {
+    const reached = totalProd >= m.val;
+    return `<div class="palier-milestone-item ${reached ? 'reached' : ''}">
+      <span class="ms-label">${reached ? '✓' : '○'} ${m.tier}</span>
+      <span>${m.label}</span>
+    </div>`;
+  }).join('');
+
+  document.getElementById('palierBanner').innerHTML = `
+    <div class="palier-banner-top">
+      <div>
+        <div class="palier-banner-title">Production collective 2026 — équipe</div>
+        <div class="palier-banner-prod">${fmtEur(totalProd)}</div>
+      </div>
+      <span class="palier-badge ${palier.cls}">${palier.pct > 0 ? '✓ ' : ''}${palier.label}</span>
+      <div class="palier-banner-next">${nextText}</div>
+    </div>
+    <div class="palier-bar-wrap">
+      <div class="bar-track-big">
+        <div class="bar-fill-big" style="width:${pct.toFixed(1)}%; background:${barColor}"></div>
+        ${milestonesHTML}
+      </div>
+    </div>
+    <div class="palier-milestones">${milestoneItems}</div>
+  `;
+}
+
+function renderRanking(sorted) {
+  const spInfo    = getSPInfo(spGlobalValue);
+  const hasRef    = Object.keys(refMap).length > 0;
+  const colSpan   = hasRef ? 8 : 7;
+
+  document.getElementById('rankBody').innerHTML = sorted.map((g, i) => {
+    const rank      = i + 1;
+    const fdg       = calcFDG(g);
+    const warns     = checkConditions(g);
+    const medal     = rank === 1 ? '🥇' : rank === 2 ? '🥈' : rank === 3 ? '🥉' : rank;
+    const activeCnt = g.polices.filter(p => p.active).length;
+
+    // Croissance
+    let growthHTML = '';
+    if (hasRef) {
+      const ref2025 = refMap[g.name];
+      if (ref2025 && ref2025 > 0) {
+        const delta = g.primePortefeuille - ref2025;
+        const pct   = delta / ref2025 * 100;
+        const cls   = pct >= 0 ? 'growth-up' : 'growth-down';
+        const sign  = pct >= 0 ? '+' : '';
+        growthHTML = `<td>
+          <div class="${cls}">${sign}${pct.toFixed(1)}%</div>
+          <div class="growth-sub">${sign}${fmtEur(delta)}</div>
+        </td>`;
+      } else {
+        growthHTML = `<td><span class="growth-na">Pas de réf.</span></td>`;
+      }
+    }
+
+    const totalProd = Object.values(gestMap).reduce((s, x) => s + x.primeProduction, 0);
+    const palier    = getProdPalier(totalProd);
+
+    return `
+      <tr>
+        <td><div class="rank-num">${medal}</div></td>
+        <td>
+          <div class="gest-name">${g.name}</div>
+          <div class="gest-site">${g.site || '—'}</div>
+          <div class="gest-count">${activeCnt} police${activeCnt > 1 ? 's' : ''} active${activeCnt > 1 ? 's' : ''}</div>
+        </td>
+        <td>
+          <div class="amount-main">${fmtEur(g.primePortefeuille)}</div>
+          <div class="amount-sub">HT</div>
+        </td>
+        <td>
+          <div class="amount-main">${fmtEur(g.primeProduction)}</div>
+          <div class="amount-sub">nouvelles affaires 2026</div>
+        </td>
+        <td>
+          <div class="${fdg !== null ? 'fdg-amount' : 'fdg-na'}" id="fdg-val-${i}">
+            ${fdg !== null ? fmtEur(fdg) : palier.pct === 0 ? 'Hors palier' : 'Saisir S/P'}
+          </div>
+          <div class="fdg-sub" id="fdg-sub-${i}">
+            ${fdg !== null ? `${palier.pct}% × ${spInfo.label.replace('× ', '')} × portef.` : ''}
+          </div>
+        </td>
+        ${growthHTML}
+        <td>
+          <div id="warn-${i}">
+            ${warns.length === 0
+              ? '<span class="warn-badge warn-ok">✓ Conditions OK</span>'
+              : warns.map(w => `<span class="warn-badge warn-bad">⚠ ${w}</span><br>`).join('')}
+          </div>
+        </td>
+        <td>
+          <button class="expand-btn" onclick="toggleDetail(${i})" id="exp-${i}" title="Voir les polices">▶</button>
+        </td>
+      </tr>
+      <tr class="detail-row" id="det-${i}">
+        <td colspan="${colSpan}">
+          <div class="detail-inner">${buildDetailHTML(g)}</div>
+        </td>
+      </tr>
+    `;
+  }).join('');
+}
+
+function buildDetailHTML(g) {
+  const actives = g.polices.filter(p => p.active);
+  if (!actives.length) return '<p style="color:#9ca3af;font-size:12px;padding:8px 0">Aucune police active</p>';
+
+  const rows = actives.map(p => `
+    <tr>
+      <td>${p.preneur || '—'}</td>
+      <td style="font-weight:600">${p.produit || '—'}</td>
+      <td>
+        <span class="branche-tag" style="background:${BRANCH_BG[p.branche]||'#f3f4f6'}; color:${BRANCH_COLOR[p.branche]||'#374151'}">
+          ${BRANCH_LABEL[p.branche]||'Autre'}
+        </span>
+      </td>
+      <td style="color:#6b7280">${p.annee || '—'}</td>
+      <td style="text-align:right; font-weight:600">${fmtEur(p.primeHT)}</td>
+      <td style="color:#6b7280; font-size:11px">${p.etat || '—'}</td>
+    </tr>
+  `).join('');
+
+  const total = actives.reduce((s, p) => s + p.primeHT, 0);
+
+  return `
+    <table class="detail-table">
+      <thead>
+        <tr>
+          <td>Preneur</td><td>Produit</td><td>Branche</td>
+          <td>Année</td><td style="text-align:right">Prime HT</td><td>État paiement</td>
+        </tr>
+      </thead>
+      <tbody>
+        ${rows}
+        <tr>
+          <td colspan="4" style="font-weight:700; font-size:12px">Total actives</td>
+          <td style="text-align:right; font-weight:800; color:var(--navy)">${fmtEur(total)}</td>
+          <td></td>
+        </tr>
+      </tbody>
+    </table>
+  `;
+}
+
+// ── INTERACTIONS ──────────────────────────────────────────────────────────
+function updateSPGlobal(value) {
+  spGlobalValue = value;
+  const spInfo    = getSPInfo(value);
+  const totalProd = Object.values(gestMap).reduce((s, x) => s + x.primeProduction, 0);
+  const palier    = getProdPalier(totalProd);
+
+  const multEl = document.getElementById('spGlobalMult');
+  if (multEl) { multEl.textContent = spInfo.label; multEl.className = `sp-mult ${spInfo.cls}`; }
+
+  const sorted = getSorted();
+  sorted.forEach((g, i) => {
+    const fdg   = calcFDG(g);
+    const valEl = document.getElementById(`fdg-val-${i}`);
+    const subEl = document.getElementById(`fdg-sub-${i}`);
+    if (valEl) {
+      valEl.className   = fdg !== null ? 'fdg-amount' : 'fdg-na';
+      valEl.textContent = fdg !== null ? fmtEur(fdg) : palier.pct === 0 ? 'Hors palier' : 'Saisir S/P';
+    }
+    if (subEl) {
+      subEl.textContent = fdg !== null ? `${palier.pct}% × ${spInfo.label.replace('× ', '')} × portef.` : '';
+    }
+  });
+
+  // Refresh KPI FDG global
+  const allFDG   = sorted.map(g => calcFDG(g)).filter(v => v !== null);
+  const totalFDG = allFDG.length ? allFDG.reduce((s, v) => s + v, 0) : null;
+  document.getElementById('kpi-fdg').textContent = totalFDG !== null ? fmtEur(totalFDG) : '—';
+}
+
+function toggleDetail(index) {
+  const row = document.getElementById(`det-${index}`);
+  const btn = document.getElementById(`exp-${index}`);
+  const open = row.classList.toggle('open');
+  btn.textContent = open ? '▼' : '▶';
+}
+
+function resetDashboard() {
+  document.getElementById('uploadSection').style.display = 'flex';
+  document.getElementById('dashboard').style.display = 'none';
+  document.getElementById('fileInfo').textContent = '';
+  document.getElementById('resetBtn').style.display = 'none';
+  document.getElementById('refBtn').style.display = 'none';
+  document.getElementById('refBtn').classList.remove('ref-loaded');
+  document.getElementById('refBtn').childNodes[0].textContent = '📂 + Référence 2025 ';
+  document.getElementById('refInput').value = '';
+  document.getElementById('fileInput').value = '';
+  document.getElementById('spGlobalInput').value = '';
+  document.getElementById('spGlobalMult').textContent = '—';
+  document.getElementById('spGlobalMult').className = 'sp-mult orange';
+  document.getElementById('th-growth').style.display = 'none';
+  rawRows = [];
+  gestMap = {};
+  refMap  = {};
+  spGlobalValue = '';
+}
+</script>
+</body>
+</html>
