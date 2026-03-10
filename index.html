@@ -800,12 +800,20 @@ async function init() {
   try {
     const res = await fetch(WEBHOOK_GET);
     const data = await res.json();
-    if (data && data.months && Object.keys(data.months).length > 0) {
-      allMonths = data.months;
-      showImportedMonths();
-      // Afficher automatiquement le dashboard avec le dernier mois
-      const keys = Object.keys(allMonths).sort();
-      selectMonthAndShow(keys[keys.length - 1]);
+    if (data && data.months) {
+      // Filtrer les entrées invalides (null, sans gestionnaires, clés techniques)
+      const validMonths = {};
+      for (const [k, v] of Object.entries(data.months)) {
+        if (v && typeof v === 'object' && v.gestionnaires && /^\d{4}-\d{2}$/.test(k)) {
+          validMonths[k] = v;
+        }
+      }
+      if (Object.keys(validMonths).length > 0) {
+        allMonths = validMonths;
+        showImportedMonths();
+        const keys = Object.keys(allMonths).sort();
+        selectMonthAndShow(keys[keys.length - 1]);
+      }
     }
   } catch(e) {
     // Pas de données, rester sur l'upload
