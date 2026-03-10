@@ -39,26 +39,34 @@ body {
 .header-title span { color: var(--gold); }
 .header-right { display: flex; align-items: center; gap: 12px; }
 .file-info { color: rgba(255,255,255,0.6); font-size: 12px; max-width: 220px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.reset-btn {
+.header-btn {
   background: rgba(255,255,255,0.1);
   border: 1px solid rgba(255,255,255,0.2);
   color: white; padding: 8px 16px; border-radius: 8px;
   cursor: pointer; font-size: 13px; font-weight: 600;
-  transition: background 0.2s;
-}
-.reset-btn:hover { background: rgba(255,255,255,0.2); }
-.ref-btn {
-  background: rgba(232,184,75,0.15);
-  border: 1px solid rgba(232,184,75,0.4);
-  color: var(--gold); padding: 8px 16px; border-radius: 8px;
-  cursor: pointer; font-size: 13px; font-weight: 600;
   transition: background 0.2s; position: relative; overflow: hidden;
 }
-.ref-btn:hover { background: rgba(232,184,75,0.25); }
-.ref-btn input[type="file"] {
+.header-btn:hover { background: rgba(255,255,255,0.2); }
+.header-btn input[type="file"] {
   position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%;
 }
-.ref-loaded { color: #86efac !important; border-color: rgba(134,239,172,0.4) !important; background: rgba(134,239,172,0.1) !important; }
+.header-btn.gold { background: rgba(232,184,75,0.15); border-color: rgba(232,184,75,0.4); color: var(--gold); }
+.header-btn.gold:hover { background: rgba(232,184,75,0.25); }
+.header-btn.loaded { color: #86efac !important; border-color: rgba(134,239,172,0.4) !important; background: rgba(134,239,172,0.1) !important; }
+
+/* ── TABS ── */
+.view-tabs {
+  display: flex; gap: 0; margin-bottom: 20px;
+  background: white; border-radius: 12px; overflow: hidden;
+  border: 1px solid var(--border); box-shadow: 0 1px 4px rgba(26,26,46,0.04);
+}
+.view-tab {
+  flex: 1; padding: 14px 20px; text-align: center;
+  font-size: 13px; font-weight: 700; cursor: pointer;
+  color: var(--text-s); transition: all 0.2s; border: none; background: white;
+}
+.view-tab:hover { background: #f9fafb; }
+.view-tab.active { background: var(--navy); color: white; }
 
 /* ── UPLOAD ── */
 .upload-section {
@@ -70,7 +78,7 @@ body {
   background: white; border-radius: 20px;
   padding: 56px 72px; text-align: center;
   box-shadow: 0 4px 24px rgba(26,26,46,0.08);
-  max-width: 520px; width: 100%;
+  max-width: 600px; width: 100%;
 }
 .upload-icon { font-size: 56px; margin-bottom: 18px; }
 .upload-title { font-size: 22px; font-weight: 800; color: var(--navy); margin-bottom: 8px; }
@@ -96,12 +104,25 @@ body {
   text-align: left;
 }
 
+/* Mois déjà importés */
+.imported-months {
+  margin-top: 24px; text-align: left;
+}
+.imported-months-title { font-size: 13px; font-weight: 700; color: var(--navy); margin-bottom: 10px; }
+.month-chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.month-chip {
+  display: inline-flex; align-items: center; gap: 4px;
+  padding: 6px 14px; border-radius: 100px;
+  font-size: 12px; font-weight: 600;
+  background: #dcfce7; color: #15803d;
+}
+
 /* ── MAIN ── */
 .main { max-width: 1380px; margin: 0 auto; padding: 28px 24px; }
 
 /* ── KPI GRID ── */
 .kpi-grid {
-  display: grid; grid-template-columns: repeat(4, 1fr);
+  display: grid; grid-template-columns: repeat(5, 1fr);
   gap: 16px; margin-bottom: 20px;
 }
 .kpi-card {
@@ -112,10 +133,14 @@ body {
 .kpi-label { font-size: 11px; color: var(--text-s); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; }
 .kpi-value { font-size: 28px; font-weight: 800; color: var(--navy); line-height: 1; }
 .kpi-sub   { font-size: 12px; color: var(--text-s); margin-top: 6px; }
+.kpi-delta { font-size: 12px; font-weight: 700; margin-top: 4px; }
+.kpi-delta.up   { color: #15803d; }
+.kpi-delta.down { color: #b91c1c; }
 .kpi-card.gold-accent   { border-top: 3px solid var(--gold); }
 .kpi-card.green-accent  { border-top: 3px solid var(--green); }
 .kpi-card.blue-accent   { border-top: 3px solid #3b82f6; }
 .kpi-card.orange-accent { border-top: 3px solid var(--orange); }
+.kpi-card.purple-accent { border-top: 3px solid #8b5cf6; }
 
 /* ── BRANCHES ── */
 .branche-grid {
@@ -145,6 +170,47 @@ body {
   font-size: 13px; color: #78350f; margin-bottom: 20px; line-height: 1.6;
 }
 
+/* ── ALERTS ── */
+.alerts-grid {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 12px; margin-bottom: 20px;
+}
+.alert-card {
+  background: white; border-radius: 12px; padding: 16px;
+  border: 1px solid var(--border); box-shadow: 0 1px 4px rgba(26,26,46,0.04);
+  cursor: pointer; transition: box-shadow 0.2s;
+}
+.alert-card:hover { box-shadow: 0 3px 10px rgba(26,26,46,0.08); }
+.alert-card.warn { border-left: 4px solid var(--orange); }
+.alert-card.danger { border-left: 4px solid var(--red); }
+.alert-card.success { border-left: 4px solid var(--green); }
+.alert-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+.alert-title { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
+.alert-card.warn .alert-title { color: #92400e; }
+.alert-card.danger .alert-title { color: #b91c1c; }
+.alert-card.success .alert-title { color: #15803d; }
+.alert-value { font-size: 22px; font-weight: 800; color: var(--navy); }
+.alert-sub { font-size: 12px; color: var(--text-s); margin-top: 4px; }
+.alert-detail { display: none; margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--border); font-size: 12px; color: var(--text-s); }
+.alert-detail.open { display: block; }
+.alert-detail ul { list-style: none; padding: 0; }
+.alert-detail li { padding: 3px 0; }
+
+/* ── BEST PROGRESSION BANNER ── */
+.progression-banner {
+  background: linear-gradient(135deg, #fefce8, #fef3c7);
+  border: 1px solid #fde68a; border-radius: 14px;
+  padding: 16px 24px; margin-bottom: 20px;
+  display: flex; align-items: center; justify-content: space-between; gap: 16px;
+  flex-wrap: wrap;
+}
+.progression-banner-left { display: flex; align-items: center; gap: 12px; }
+.progression-trophy { font-size: 32px; }
+.progression-text { }
+.progression-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: #92400e; }
+.progression-name { font-size: 18px; font-weight: 800; color: var(--navy); }
+.progression-stat { font-size: 18px; font-weight: 800; color: #15803d; }
+
 /* ── PALIER BANNER ── */
 .palier-banner {
   background: white; border-radius: 14px;
@@ -168,10 +234,18 @@ body {
 .palier-2 { background: #dbeafe; color: #1d4ed8; }
 .palier-3 { background: #dcfce7; color: #15803d; }
 
-/* Barre avec jalons */
 .palier-bar-wrap { position: relative; margin-bottom: 8px; }
 .bar-track-big { height: 10px; background: #f0f2f5; border-radius: 100px; overflow: visible; position: relative; }
 .bar-fill-big  { height: 10px; border-radius: 100px; transition: width 0.8s ease; position: absolute; top: 0; left: 0; }
+.bar-projected {
+  position: absolute; top: -2px; width: 3px; height: 14px;
+  background: var(--navy); border-radius: 2px; opacity: 0.4;
+  transition: left 0.8s ease;
+}
+.bar-projected-label {
+  position: absolute; top: -20px; font-size: 9px; font-weight: 700;
+  color: var(--navy); white-space: nowrap; transform: translateX(-50%);
+}
 .bar-milestone {
   position: absolute; top: -4px;
   width: 2px; height: 18px; background: #d1d5db;
@@ -186,7 +260,7 @@ body {
 .palier-milestone-item.reached { color: var(--green); font-weight: 700; }
 .palier-milestone-item .ms-label { font-weight: 700; display: block; }
 
-/* ── SP GLOBAL + Classement header ── */
+/* ── SP GLOBAL ── */
 .controls-row {
   background: white; border-radius: 14px; padding: 14px 20px;
   border: 1px solid var(--border); box-shadow: 0 1px 6px rgba(26,26,46,0.05);
@@ -227,12 +301,24 @@ body {
 .gest-name  { font-weight: 700; font-size: 14px; }
 .gest-site  { font-size: 11px; color: var(--text-s); margin-top: 2px; }
 .gest-count { font-size: 11px; color: var(--text-s); margin-top: 2px; }
+.gest-badge { display: inline-block; font-size: 9px; font-weight: 700; padding: 1px 6px; border-radius: 100px; background: #dbeafe; color: #1d4ed8; margin-left: 4px; }
 
 .amount-main { font-weight: 700; font-size: 14px; }
 .amount-sub  { font-size: 11px; color: var(--text-s); margin-top: 2px; }
 
+/* Score */
+.score-bar-wrap { width: 80px; }
+.score-bar-track { height: 6px; background: #f0f2f5; border-radius: 100px; overflow: hidden; }
+.score-bar-fill  { height: 6px; border-radius: 100px; background: var(--gold); transition: width 0.6s ease; }
+.score-value { font-size: 13px; font-weight: 800; color: var(--navy); margin-bottom: 3px; }
+
+/* Trend */
+.trend-up   { color: #15803d; font-weight: 700; font-size: 12px; }
+.trend-down { color: #b91c1c; font-weight: 700; font-size: 12px; }
+.trend-new  { color: #1d4ed8; font-weight: 700; font-size: 12px; }
+.trend-na   { color: var(--text-s); font-size: 12px; }
+
 /* S/P */
-.sp-wrap { display: flex; align-items: center; gap: 6px; margin-bottom: 5px; }
 .sp-input {
   width: 62px; padding: 5px 8px;
   border: 1.5px solid var(--border); border-radius: 7px;
@@ -291,6 +377,41 @@ body {
   font-size: 10px; font-weight: 700;
 }
 
+/* ── YEAR VIEW ── */
+.year-view { display: none; }
+.year-view.active { display: block; }
+.month-view { display: none; }
+.month-view.active { display: block; }
+
+/* Month selector */
+.month-selector {
+  background: white; border-radius: 12px; padding: 14px 20px;
+  border: 1px solid var(--border); box-shadow: 0 1px 4px rgba(26,26,46,0.04);
+  margin-bottom: 20px; display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+}
+.month-selector label { font-size: 13px; font-weight: 700; color: var(--navy); }
+.month-select {
+  padding: 8px 14px; border: 1.5px solid var(--border); border-radius: 8px;
+  font-size: 13px; font-weight: 600; color: var(--navy); background: white; cursor: pointer;
+}
+
+/* Year chart */
+.chart-card {
+  background: white; border-radius: 14px; padding: 24px;
+  border: 1px solid var(--border); box-shadow: 0 1px 6px rgba(26,26,46,0.05);
+  margin-bottom: 20px;
+}
+.chart-title { font-size: 13px; font-weight: 700; color: var(--navy); margin-bottom: 16px; }
+.bar-chart { display: flex; align-items: flex-end; gap: 8px; height: 180px; padding-bottom: 24px; position: relative; }
+.bar-chart-col { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; position: relative; height: 100%; justify-content: flex-end; }
+.bar-chart-bar {
+  width: 100%; max-width: 60px; border-radius: 6px 6px 0 0;
+  background: linear-gradient(180deg, var(--gold), #d4a034);
+  transition: height 0.6s ease; min-height: 4px;
+}
+.bar-chart-label { font-size: 10px; color: var(--text-s); font-weight: 600; position: absolute; bottom: 0; }
+.bar-chart-value { font-size: 10px; font-weight: 700; color: var(--navy); }
+
 /* Convention recap */
 .conv-card {
   background: white; border-radius: 14px; padding: 20px;
@@ -299,7 +420,6 @@ body {
 }
 .conv-title { font-size: 13px; font-weight: 700; color: var(--navy); margin-bottom: 12px; }
 .conv-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
-.conv-section { }
 .conv-section h4 { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-s); margin-bottom: 8px; }
 .conv-row { display: flex; justify-content: space-between; padding: 4px 0; border-bottom: 1px solid #f0f2f5; font-size: 12px; }
 .conv-row:last-child { border-bottom: none; }
@@ -322,11 +442,14 @@ body {
   </div>
   <div class="header-right">
     <span class="file-info" id="fileInfo"></span>
-    <button class="ref-btn" id="refBtn" style="display:none">
-      📂 + Référence 2025
+    <button class="header-btn gold" id="addMonthBtn" style="display:none">
+      + Ajouter un mois
+      <input type="file" accept=".xls,.xlsx" id="addMonthInput" onchange="handleFile(this.files[0])">
+    </button>
+    <button class="header-btn gold" id="refBtn" style="display:none">
+      + Référence 2025
       <input type="file" accept=".xls,.xlsx" id="refInput" onchange="handleRefFile(this.files[0])">
     </button>
-    <button class="reset-btn" id="resetBtn" onclick="resetDashboard()" style="display:none">↩ Nouveau fichier</button>
   </div>
 </div>
 
@@ -335,17 +458,22 @@ body {
   <div class="upload-card">
     <div class="upload-icon">📊</div>
     <div class="upload-title">Suivi Production AEDES 2026</div>
-    <div class="upload-sub">Importez le fichier XLS de Julien pour visualiser le classement de votre équipe et simuler les frais de gestion selon la convention PAECT.</div>
+    <div class="upload-sub">Importez le fichier XLS mensuel de Julien pour alimenter le dashboard.<br>Les données sont partagées — tout le monde voit les mêmes résultats.</div>
 
     <div class="drop-zone" id="dropZone">
       <input type="file" accept=".xls,.xlsx" id="fileInput" onchange="handleFile(this.files[0])">
-      <div class="drop-btn">📂 Choisir le fichier XLS</div>
+      <div class="drop-btn">📂 Importer un fichier mensuel</div>
       <div class="drop-text">ou glissez-déposez le fichier ici</div>
     </div>
 
     <div class="upload-note">
-      📌 <strong>Convention PAECT 2026</strong> — Branches couvertes : Auto · Incendie · Vélo · Protection Juridique<br>
-      🔒 Le fichier n'est pas envoyé sur internet. Tout le traitement se fait dans votre navigateur.
+      📌 <strong>Convention PAECT 2026</strong> — Branches : Auto · Incendie · Vélo · PJ<br>
+      📡 Les données sont sauvegardées et partagées avec toute l'équipe.
+    </div>
+
+    <div class="imported-months" id="importedMonths" style="display:none">
+      <div class="imported-months-title">Mois déjà importés :</div>
+      <div class="month-chips" id="monthChips"></div>
     </div>
   </div>
 </div>
@@ -353,118 +481,179 @@ body {
 <!-- DASHBOARD -->
 <div class="main" id="dashboard" style="display:none">
 
-  <div class="note-card" id="noteCard"></div>
-
-  <!-- KPIs -->
-  <div class="kpi-grid">
-    <div class="kpi-card gold-accent">
-      <div class="kpi-label">Polices actives</div>
-      <div class="kpi-value" id="kpi-polices">—</div>
-      <div class="kpi-sub" id="kpi-polices-sub"></div>
-    </div>
-    <div class="kpi-card blue-accent">
-      <div class="kpi-label">Prime portefeuille</div>
-      <div class="kpi-value" id="kpi-portefeuille">—</div>
-      <div class="kpi-sub">Total primes HT actives</div>
-    </div>
-    <div class="kpi-card green-accent">
-      <div class="kpi-label">Prime production 2026</div>
-      <div class="kpi-value" id="kpi-production">—</div>
-      <div class="kpi-sub">Nouvelles affaires 2026</div>
-    </div>
-    <div class="kpi-card orange-accent">
-      <div class="kpi-label">FDG projetés (équipe)</div>
-      <div class="kpi-value" id="kpi-fdg">—</div>
-      <div class="kpi-sub">Saisir S/P pour calculer</div>
-    </div>
+  <!-- TABS -->
+  <div class="view-tabs">
+    <button class="view-tab active" onclick="switchView('month')">📅 Vue Mensuelle</button>
+    <button class="view-tab" onclick="switchView('year')">📈 Vue Générale Année</button>
   </div>
 
-  <!-- BRANCHES -->
-  <div class="branche-grid">
-    <div class="branche-card b-auto">
-      <div class="branche-name">Auto</div>
-      <div class="branche-count" id="b-auto-count">—</div>
-      <div class="branche-prime" id="b-auto-prime"></div>
-    </div>
-    <div class="branche-card b-incendie">
-      <div class="branche-name">Incendie</div>
-      <div class="branche-count" id="b-incendie-count">—</div>
-      <div class="branche-prime" id="b-incendie-prime"></div>
-    </div>
-    <div class="branche-card b-velo">
-      <div class="branche-name">Vélo</div>
-      <div class="branche-count" id="b-velo-count">—</div>
-      <div class="branche-prime" id="b-velo-prime"></div>
-    </div>
-    <div class="branche-card b-pj">
-      <div class="branche-name">Protection Juridique</div>
-      <div class="branche-count" id="b-pj-count">—</div>
-      <div class="branche-prime" id="b-pj-prime"></div>
-    </div>
-  </div>
+  <!-- ═══════════ VUE MENSUELLE ═══════════ -->
+  <div class="month-view active" id="monthView">
 
-  <!-- PALIER COLLECTIF BANNIÈRE -->
-  <div class="palier-banner" id="palierBanner"></div>
-
-  <!-- S/P + CONTRÔLES -->
-  <div class="controls-row">
-    <span class="sp-global-label">📊 Ratio S/P équipe :</span>
-    <input type="number" id="spGlobalInput" class="sp-input"
-      placeholder="ex: 38" min="0" max="100" step="1"
-      oninput="updateSPGlobal(this.value)">
-    <span class="sp-label">%</span>
-    <span class="sp-mult orange" id="spGlobalMult">—</span>
-    <span class="sp-global-hint">S/P collectif appliqué à tous les gestionnaires</span>
-  </div>
-
-  <!-- CLASSEMENT -->
-  <div class="card">
-    <div class="card-header">
-      <div class="card-title">🏆 Classement des gestionnaires</div>
-      <div class="card-sub">Cliquez sur ▶ pour voir les polices</div>
+    <div class="month-selector">
+      <label>Mois :</label>
+      <select class="month-select" id="monthSelect" onchange="selectMonth(this.value)"></select>
     </div>
-    <div class="table-wrap">
-      <table class="rank-table">
-        <thead>
-          <tr id="rankHead">
-            <th style="text-align:center; width:48px">#</th>
-            <th>Gestionnaire</th>
-            <th>Portefeuille HT</th>
-            <th>Production 2026</th>
-            <th style="min-width:130px">FDG projetés</th>
-            <th id="th-growth" style="display:none; min-width:120px">Croissance</th>
-            <th>Conditions</th>
-            <th style="width:40px"></th>
-          </tr>
-        </thead>
-        <tbody id="rankBody"></tbody>
-      </table>
-    </div>
-  </div>
 
-  <!-- CONVENTION RECAP -->
-  <div class="conv-card">
-    <div class="conv-title">📋 Rappel — Barèmes Convention PAECT 2026</div>
-    <div class="conv-grid">
-      <div class="conv-section">
-        <h4>Prime production (collective)</h4>
-        <div class="conv-row"><span>> 80.000 €</span><span class="conv-val">1% du portefeuille</span></div>
-        <div class="conv-row"><span>> 100.000 €</span><span class="conv-val">2% du portefeuille</span></div>
-        <div class="conv-row"><span>> 150.000 €</span><span class="conv-val">3% du portefeuille</span></div>
+    <div class="note-card" id="noteCard"></div>
+
+    <div class="kpi-grid">
+      <div class="kpi-card gold-accent">
+        <div class="kpi-label">Polices actives</div>
+        <div class="kpi-value" id="kpi-polices">—</div>
+        <div class="kpi-sub" id="kpi-polices-sub"></div>
       </div>
-      <div class="conv-section">
-        <h4>Croissance portefeuille</h4>
-        <div class="conv-row"><span>> 10%</span><span class="conv-val">+ 2% du portefeuille</span></div>
-        <div class="conv-row"><span>> 20%</span><span class="conv-val">+ 4% du portefeuille</span></div>
-        <div class="conv-row"><span>> 30%</span><span class="conv-val">+ 5% du portefeuille</span></div>
+      <div class="kpi-card blue-accent">
+        <div class="kpi-label">Prime portefeuille</div>
+        <div class="kpi-value" id="kpi-portefeuille">—</div>
+        <div class="kpi-sub">Total primes HT actives</div>
       </div>
-      <div class="conv-section">
-        <h4>Multiplicateur S/P</h4>
-        <div class="conv-row"><span>S/P > 55%</span><span class="conv-val">× 0,25</span></div>
-        <div class="conv-row"><span>S/P < 55%</span><span class="conv-val">× 0,50</span></div>
-        <div class="conv-row"><span>S/P < 45%</span><span class="conv-val">× 1,00</span></div>
-        <div class="conv-row"><span>S/P < 35%</span><span class="conv-val">× 1,25</span></div>
-        <div class="conv-row"><span>S/P < 30%</span><span class="conv-val">× 1,50</span></div>
+      <div class="kpi-card green-accent">
+        <div class="kpi-label">Prime production 2026</div>
+        <div class="kpi-value" id="kpi-production">—</div>
+        <div class="kpi-sub" id="kpi-production-sub">Nouvelles affaires 2026</div>
+      </div>
+      <div class="kpi-card orange-accent">
+        <div class="kpi-label">FDG projetés (équipe)</div>
+        <div class="kpi-value" id="kpi-fdg">—</div>
+        <div class="kpi-sub">Saisir S/P pour calculer</div>
+      </div>
+      <div class="kpi-card purple-accent">
+        <div class="kpi-label">Rythme annuel projeté</div>
+        <div class="kpi-value" id="kpi-rythme">—</div>
+        <div class="kpi-sub" id="kpi-rythme-sub"></div>
+      </div>
+    </div>
+
+    <div class="branche-grid">
+      <div class="branche-card b-auto">
+        <div class="branche-name">Auto</div>
+        <div class="branche-count" id="b-auto-count">—</div>
+        <div class="branche-prime" id="b-auto-prime"></div>
+      </div>
+      <div class="branche-card b-incendie">
+        <div class="branche-name">Incendie</div>
+        <div class="branche-count" id="b-incendie-count">—</div>
+        <div class="branche-prime" id="b-incendie-prime"></div>
+      </div>
+      <div class="branche-card b-velo">
+        <div class="branche-name">Vélo</div>
+        <div class="branche-count" id="b-velo-count">—</div>
+        <div class="branche-prime" id="b-velo-prime"></div>
+      </div>
+      <div class="branche-card b-pj">
+        <div class="branche-name">Protection Juridique</div>
+        <div class="branche-count" id="b-pj-count">—</div>
+        <div class="branche-prime" id="b-pj-prime"></div>
+      </div>
+    </div>
+
+    <!-- POINTS D'ATTENTION -->
+    <div class="alerts-grid" id="alertsGrid"></div>
+
+    <!-- MEILLEURE PROGRESSION -->
+    <div class="progression-banner" id="progressionBanner" style="display:none"></div>
+
+    <!-- PALIER -->
+    <div class="palier-banner" id="palierBanner"></div>
+
+    <!-- S/P -->
+    <div class="controls-row">
+      <span class="sp-global-label">📊 Ratio S/P équipe :</span>
+      <input type="number" id="spGlobalInput" class="sp-input"
+        placeholder="ex: 38" min="0" max="100" step="1"
+        oninput="updateSPGlobal(this.value)">
+      <span class="sp-label">%</span>
+      <span class="sp-mult orange" id="spGlobalMult">—</span>
+      <span class="sp-global-hint">S/P collectif appliqué à tous les gestionnaires</span>
+    </div>
+
+    <!-- CLASSEMENT -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">🏆 Classement des gestionnaires</div>
+        <div class="card-sub">Score = Primes (40%) + Polices (30%) + Progression (30%)</div>
+      </div>
+      <div class="table-wrap">
+        <table class="rank-table">
+          <thead>
+            <tr id="rankHead">
+              <th style="text-align:center; width:48px">#</th>
+              <th>Gestionnaire</th>
+              <th>Score</th>
+              <th>Production 2026</th>
+              <th>Portefeuille HT</th>
+              <th style="min-width:100px">Évolution</th>
+              <th style="min-width:130px">FDG projetés</th>
+              <th id="th-growth" style="display:none; min-width:120px">Croiss. N/N-1</th>
+              <th>Conditions</th>
+              <th style="width:40px"></th>
+            </tr>
+          </thead>
+          <tbody id="rankBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- CONVENTION -->
+    <div class="conv-card">
+      <div class="conv-title">📋 Rappel — Barèmes Convention PAECT 2026</div>
+      <div class="conv-grid">
+        <div class="conv-section">
+          <h4>Prime production (collective)</h4>
+          <div class="conv-row"><span>> 80.000 €</span><span class="conv-val">1% du portefeuille</span></div>
+          <div class="conv-row"><span>> 100.000 €</span><span class="conv-val">2% du portefeuille</span></div>
+          <div class="conv-row"><span>> 150.000 €</span><span class="conv-val">3% du portefeuille</span></div>
+        </div>
+        <div class="conv-section">
+          <h4>Croissance portefeuille</h4>
+          <div class="conv-row"><span>> 10%</span><span class="conv-val">+ 2% du portefeuille</span></div>
+          <div class="conv-row"><span>> 20%</span><span class="conv-val">+ 4% du portefeuille</span></div>
+          <div class="conv-row"><span>> 30%</span><span class="conv-val">+ 5% du portefeuille</span></div>
+        </div>
+        <div class="conv-section">
+          <h4>Multiplicateur S/P</h4>
+          <div class="conv-row"><span>S/P > 55%</span><span class="conv-val">× 0,25</span></div>
+          <div class="conv-row"><span>S/P < 55%</span><span class="conv-val">× 0,50</span></div>
+          <div class="conv-row"><span>S/P < 45%</span><span class="conv-val">× 1,00</span></div>
+          <div class="conv-row"><span>S/P < 35%</span><span class="conv-val">× 1,25</span></div>
+          <div class="conv-row"><span>S/P < 30%</span><span class="conv-val">× 1,50</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════ VUE ANNUELLE ═══════════ -->
+  <div class="year-view" id="yearView">
+
+    <div class="kpi-grid" id="yearKpiGrid"></div>
+
+    <div class="chart-card">
+      <div class="chart-title">📈 Production collective — Évolution mensuelle</div>
+      <div class="bar-chart" id="yearChart"></div>
+    </div>
+
+    <div class="palier-banner" id="yearPalierBanner"></div>
+
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">🏆 Classement annuel cumulé</div>
+        <div class="card-sub">Score composite sur l'ensemble de l'année</div>
+      </div>
+      <div class="table-wrap">
+        <table class="rank-table">
+          <thead>
+            <tr>
+              <th style="text-align:center; width:48px">#</th>
+              <th>Gestionnaire</th>
+              <th>Score</th>
+              <th>Production totale</th>
+              <th>Polices</th>
+              <th>Progression</th>
+            </tr>
+          </thead>
+          <tbody id="yearRankBody"></tbody>
+        </table>
       </div>
     </div>
   </div>
@@ -472,15 +661,44 @@ body {
 </div>
 
 <script>
+// ── WEBHOOKS ──────────────────────────────────────────────────────────────
+const WEBHOOK_POST = 'https://n8n.srv1387885.hstgr.cloud/webhook/dap-solidarity-data';
+const WEBHOOK_GET  = 'https://n8n.srv1387885.hstgr.cloud/webhook/dap-solidarity-data';
+
 // ── STATE ──────────────────────────────────────────────────────────────────
-let rawRows = [];
-let gestMap = {};        // name → gestionnaire object
-let refMap  = {};        // name → primePortefeuille 31/12/2025
-let spGlobalValue = '';  // S/P collectif saisi
+let allMonths = {};     // monthKey → { label, gestionnaires, rawRows, totalProd, totalPortef, totalPolices, branches }
+let currentMonth = '';  // key du mois sélectionné
+let gestMap = {};       // gestionnaire map pour le mois courant
+let rawRows = [];       // lignes brutes du mois courant
+let refMap  = {};       // name → primePortefeuille 31/12/2025
+let spGlobalValue = '';
 
 // ── UTILS ──────────────────────────────────────────────────────────────────
 const fmt = n => new Intl.NumberFormat('fr-BE', { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(n);
 const fmtEur = n => fmt(n) + ' €';
+const MONTH_NAMES = ['Janvier','Février','Mars','Avril','Mai','Juin','Juillet','Août','Septembre','Octobre','Novembre','Décembre'];
+
+function detectMonthKey(filename, sheetNames) {
+  // Essayer depuis le nom du fichier: "DAP SOLIDARITY - 2026 - 03-03.xlsx" → "2026-03"
+  const m = filename.match(/(\d{4})\s*-\s*(\d{2})/);
+  if (m) return m[1] + '-' + m[2];
+  // Essayer depuis le nom de l'onglet
+  for (const sn of sheetNames) {
+    const m2 = sn.match(/(\d{4})/);
+    if (m2) {
+      const now = new Date();
+      const monthNum = String(now.getMonth() + 1).padStart(2, '0');
+      return m2[1] + '-' + monthNum;
+    }
+  }
+  return new Date().getFullYear() + '-' + String(new Date().getMonth() + 1).padStart(2, '0');
+}
+
+function monthLabel(key) {
+  const parts = key.split('-');
+  const monthIdx = parseInt(parts[1]) - 1;
+  return (MONTH_NAMES[monthIdx] || parts[1]) + ' ' + parts[0];
+}
 
 function excelDateToYear(v) {
   if (!v) return null;
@@ -489,8 +707,10 @@ function excelDateToYear(v) {
     return isNaN(d) ? null : d.getFullYear();
   }
   if (typeof v === 'string') {
-    const m = v.match(/(\d{2})\/(\d{2})\/(\d{4})/);
-    if (m) return parseInt(m[3]);
+    const m = v.match(/(\d{4})-(\d{2})/);
+    if (m) return parseInt(m[1]);
+    const m2 = v.match(/(\d{2})\/(\d{2})\/(\d{4})/);
+    if (m2) return parseInt(m2[3]);
     const d = new Date(v);
     return isNaN(d) ? null : d.getFullYear();
   }
@@ -512,9 +732,9 @@ function getBranche(produit) {
   if (!produit) return 'autre';
   const p = String(produit).trim();
   if (p === 'PJ Auto' || /^PJ\s/i.test(p) || p.toUpperCase() === 'PJ') return 'pj';
-  if (/^vélo$/i.test(p) || /^velo$/i.test(p)) return 'velo';
+  if (/^v[ée]lo$/i.test(p)) return 'velo';
   if (['P.LiZ', 'P-Home', 'PAC-AEDES'].includes(p)) return 'incendie';
-  if (/^P\d+$/.test(p) || p === 'Oldtimer' || p === 'CARES') return 'auto';
+  if (/^(P\d+|Auto\s*-\s*P\d+)$/i.test(p) || p === 'Oldtimer' || p === 'CARES') return 'auto';
   return 'autre';
 }
 
@@ -527,9 +747,7 @@ function getProdPalier(prod) {
 }
 
 function getSPInfo(spVal) {
-  if (spVal === '' || spVal === null || spVal === undefined) {
-    return { mult: null, label: '—', cls: 'orange' };
-  }
+  if (spVal === '' || spVal === null || spVal === undefined) return { mult: null, label: '—', cls: 'orange' };
   const v = parseFloat(spVal) / 100;
   if (isNaN(v)) return { mult: null, label: '—', cls: 'orange' };
   if (v < 0.30) return { mult: 1.50, label: '× 1,50', cls: 'green' };
@@ -541,8 +759,8 @@ function getSPInfo(spVal) {
 
 function calcFDG(g) {
   const totalProd = Object.values(gestMap).reduce((s, x) => s + x.primeProduction, 0);
-  const palier    = getProdPalier(totalProd);
-  const sp        = getSPInfo(spGlobalValue);
+  const palier = getProdPalier(totalProd);
+  const sp = getSPInfo(spGlobalValue);
   if (palier.rate === 0 || sp.mult === null) return null;
   return palier.rate * sp.mult * g.primePortefeuille;
 }
@@ -552,6 +770,56 @@ function checkConditions(g) {
   if (g.primePortefeuille < 75000) w.push('Portef. < 75k€');
   if (g.primeProduction < 20000)   w.push('Prod. < 20k€');
   return w;
+}
+
+// Score composite : primes 40%, polices 30%, progression 30%
+function calcScores(sorted, prevGestMap) {
+  if (!sorted.length) return [];
+  const maxPrime = Math.max(...sorted.map(g => g.primeProduction), 1);
+  const maxPolices = Math.max(...sorted.map(g => g.polices.filter(p => p.active).length), 1);
+
+  return sorted.map(g => {
+    const primeScore = (g.primeProduction / maxPrime) * 40;
+    const policeScore = (g.polices.filter(p => p.active).length / maxPolices) * 30;
+    let progScore = 15; // default mid si pas de précédent
+    if (prevGestMap) {
+      const prev = prevGestMap[g.name];
+      if (prev && prev.primeProduction > 0) {
+        const growth = (g.primeProduction - prev.primeProduction) / prev.primeProduction;
+        progScore = Math.max(0, Math.min(30, 15 + growth * 30));
+      } else if (!prev) {
+        progScore = 20; // nouveau = bonus
+      }
+    }
+    return { ...g, score: Math.round(primeScore + policeScore + progScore) };
+  });
+}
+
+// ── INIT — charger données partagées ──────────────────────────────────────
+async function init() {
+  try {
+    const res = await fetch(WEBHOOK_GET);
+    const data = await res.json();
+    if (data && data.months && Object.keys(data.months).length > 0) {
+      allMonths = data.months;
+      showImportedMonths();
+      // Afficher automatiquement le dashboard avec le dernier mois
+      const keys = Object.keys(allMonths).sort();
+      selectMonthAndShow(keys[keys.length - 1]);
+    }
+  } catch(e) {
+    // Pas de données, rester sur l'upload
+  }
+}
+init();
+
+function showImportedMonths() {
+  const keys = Object.keys(allMonths).sort();
+  if (keys.length === 0) return;
+  document.getElementById('importedMonths').style.display = 'block';
+  document.getElementById('monthChips').innerHTML = keys.map(k =>
+    `<span class="month-chip">✓ ${monthLabel(k)}</span>`
+  ).join('');
 }
 
 // ── DRAG & DROP ───────────────────────────────────────────────────────────
@@ -572,14 +840,23 @@ function handleFile(file) {
     try {
       const data = new Uint8Array(e.target.result);
       const wb = XLSX.read(data, { type: 'array', cellDates: false });
+      const monthKey = detectMonthKey(file.name, wb.SheetNames);
+
+      // Vérifier si le mois existe déjà
+      if (allMonths[monthKey] && !confirm(`Le mois "${monthLabel(monthKey)}" existe déjà. Remplacer les données ?`)) return;
+
       const ws = wb.Sheets[wb.SheetNames[0]];
       rawRows = XLSX.utils.sheet_to_json(ws, { header: 1, defval: '' });
-      processData(file.name);
-      document.getElementById('fileInfo').textContent = '📁 ' + file.name;
-      document.getElementById('resetBtn').style.display = 'block';
-      document.getElementById('refBtn').style.display = 'block';
+
+      const monthData = processDataForMonth(rawRows, monthKey);
+      allMonths[monthKey] = monthData;
+
+      // Sauvegarder sur OneDrive
+      saveToCloud(monthKey, monthData);
+
+      selectMonthAndShow(monthKey);
     } catch(err) {
-      alert('Erreur lors de la lecture du fichier : ' + err.message);
+      alert('Erreur : ' + err.message);
     }
   };
   reader.readAsArrayBuffer(file);
@@ -596,23 +873,33 @@ function handleRefFile(file) {
       const rows = XLSX.utils.sheet_to_json(ws, { header: 1, defval: '' });
       processRefData(rows);
       const btn = document.getElementById('refBtn');
-      btn.classList.add('ref-loaded');
-      btn.childNodes[0].textContent = '✓ Réf. 2025 chargée ';
+      btn.classList.add('loaded');
+      btn.childNodes[0].textContent = '✓ Réf. 2025 ';
       document.getElementById('th-growth').style.display = '';
       renderRanking(getSorted());
     } catch(err) {
-      alert('Erreur lors de la lecture du fichier référence : ' + err.message);
+      alert('Erreur réf. : ' + err.message);
     }
   };
   reader.readAsArrayBuffer(file);
 }
 
-// ── PROCESS ───────────────────────────────────────────────────────────────
-function processData(filename) {
-  if (rawRows.length < 2) return;
-  gestMap = {};
+async function saveToCloud(monthKey, monthData) {
+  try {
+    await fetch(WEBHOOK_POST, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ monthKey, monthData })
+    });
+  } catch(e) { /* silencieux */ }
+}
 
-  rawRows.slice(1).forEach(row => {
+// ── PROCESS ───────────────────────────────────────────────────────────────
+function processDataForMonth(rows, monthKey) {
+  const gMap = {};
+  const branches = { auto: {c:0,p:0}, incendie: {c:0,p:0}, velo: {c:0,p:0}, pj: {c:0,p:0} };
+
+  rows.slice(1).forEach(row => {
     if (!row[0] && !row[2] && !row[11]) return;
 
     const preneur  = String(row[0]  || '').trim();
@@ -623,8 +910,8 @@ function processData(filename) {
     const contact  = String(row[11] || '').trim() || 'Non assigné';
     const site     = String(row[12] || '').trim();
 
-    if (!gestMap[contact]) {
-      gestMap[contact] = {
+    if (!gMap[contact]) {
+      gMap[contact] = {
         name: contact, site,
         polices: [],
         primePortefeuille: 0,
@@ -633,7 +920,7 @@ function processData(filename) {
       };
     }
 
-    const g       = gestMap[contact];
+    const g       = gMap[contact];
     const active  = isActive(etat);
     const branche = getBranche(produit);
     const annee   = excelDateToYear(dateSosc);
@@ -643,13 +930,24 @@ function processData(filename) {
     if (active) {
       g.primePortefeuille += primeHT;
       g.branchCount[branche]++;
+      if (branches[branche]) { branches[branche].c++; branches[branche].p += primeHT; }
     }
     if (active && annee === 2026) {
       g.primeProduction += primeHT;
     }
   });
 
-  renderDashboard(filename);
+  const sorted = Object.values(gMap).sort((a, b) => b.primeProduction - a.primeProduction || b.primePortefeuille - a.primePortefeuille);
+  const totalProd = sorted.reduce((s, g) => s + g.primeProduction, 0);
+  const totalPortef = sorted.reduce((s, g) => s + g.primePortefeuille, 0);
+  const totalPolices = sorted.reduce((s, g) => s + g.polices.filter(p => p.active).length, 0);
+
+  return {
+    label: monthLabel(monthKey),
+    gestionnaires: gMap,
+    totalProd, totalPortef, totalPolices, branches,
+    date: new Date().toISOString()
+  };
 }
 
 function processRefData(rows) {
@@ -664,15 +962,66 @@ function processRefData(rows) {
   });
 }
 
-// ── RENDER ────────────────────────────────────────────────────────────────
-function renderDashboard(filename) {
+// ── NAVIGATION ───────────────────────────────────────────────────────────
+function selectMonthAndShow(monthKey) {
+  currentMonth = monthKey;
+
+  // Populate month selector
+  const select = document.getElementById('monthSelect');
+  const keys = Object.keys(allMonths).sort();
+  select.innerHTML = keys.map(k =>
+    `<option value="${k}" ${k === monthKey ? 'selected' : ''}>${monthLabel(k)}</option>`
+  ).join('');
+
+  // Load month data into gestMap + rawRows
+  const md = allMonths[monthKey];
+  gestMap = md.gestionnaires;
+  rawRows = []; // pas besoin pour le rendu
+
+  // Show dashboard
   document.getElementById('uploadSection').style.display = 'none';
   document.getElementById('dashboard').style.display = 'block';
+  document.getElementById('addMonthBtn').style.display = 'block';
+  document.getElementById('refBtn').style.display = 'block';
+  document.getElementById('fileInfo').textContent = `📅 ${md.label}`;
+  document.getElementById('addMonthInput').value = '';
 
+  renderMonth();
+}
+
+function selectMonth(monthKey) {
+  currentMonth = monthKey;
+  const md = allMonths[monthKey];
+  gestMap = md.gestionnaires;
+  document.getElementById('fileInfo').textContent = `📅 ${md.label}`;
+  renderMonth();
+}
+
+function switchView(view) {
+  document.querySelectorAll('.view-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('monthView').classList.remove('active');
+  document.getElementById('yearView').classList.remove('active');
+
+  if (view === 'month') {
+    document.querySelector('.view-tab:first-child').classList.add('active');
+    document.getElementById('monthView').classList.add('active');
+  } else {
+    document.querySelector('.view-tab:last-child').classList.add('active');
+    document.getElementById('yearView').classList.add('active');
+    renderYearView();
+  }
+}
+
+// ── RENDER MONTH ──────────────────────────────────────────────────────────
+function renderMonth() {
   const sorted = getSorted();
-  renderNote(filename, sorted);
-  renderKPIs(sorted);
-  renderBranches();
+  const md = allMonths[currentMonth];
+
+  renderNote(md, sorted);
+  renderKPIs(sorted, md);
+  renderBranches(md);
+  renderAlerts(sorted, md);
+  renderProgressionBanner(sorted);
   renderPalierBanner();
   renderRanking(sorted);
 }
@@ -684,87 +1033,199 @@ function getSorted() {
   });
 }
 
-function renderNote(filename, sorted) {
-  const totalProd = sorted.reduce((s, g) => s + g.primeProduction, 0);
-  let msg;
-  if (!totalProd) {
-    msg = `<strong>📁 ${filename}</strong> — ⚠️ Aucune police souscrite en 2026 détectée. Le fichier contient peut-être uniquement des données 2025.`;
-  } else {
-    const hasRef = Object.keys(refMap).length > 0;
-    msg = `<strong>📁 ${filename}</strong> — ${sorted.length} gestionnaire${sorted.length > 1 ? 's' : ''} · Palier et S/P sont collectifs (équipe entière) · ${hasRef ? '✓ Fichier référence 2025 chargé — colonne Croissance activée' : 'Chargez le fichier référence 31/12/2025 via le bouton dans le header pour calculer la croissance'}`;
-  }
+function getPrevMonth() {
+  const keys = Object.keys(allMonths).sort();
+  const idx = keys.indexOf(currentMonth);
+  return idx > 0 ? allMonths[keys[idx - 1]] : null;
+}
+
+function renderNote(md, sorted) {
+  const hasRef = Object.keys(refMap).length > 0;
+  const keysCount = Object.keys(allMonths).length;
+  let msg = `<strong>📅 ${md.label}</strong> — ${sorted.length} gestionnaire${sorted.length > 1 ? 's' : ''} · ${keysCount} mois importé${keysCount > 1 ? 's' : ''} · Paliers collectifs`;
+  if (hasRef) msg += ' · ✓ Réf. 2025 chargée';
   document.getElementById('noteCard').innerHTML = msg;
 }
 
-function renderKPIs(sorted) {
-  const totalActives = sorted.reduce((s, g) => s + g.polices.filter(p => p.active).length, 0);
-  const totalPortef  = sorted.reduce((s, g) => s + g.primePortefeuille, 0);
-  const totalProd    = sorted.reduce((s, g) => s + g.primeProduction, 0);
+function renderKPIs(sorted, md) {
+  const totalActives = md.totalPolices;
+  const totalPortef  = md.totalPortef;
+  const totalProd    = md.totalProd;
   const fdgValues    = sorted.map(g => calcFDG(g)).filter(v => v !== null);
   const totalFDG     = fdgValues.length ? fdgValues.reduce((s, v) => s + v, 0) : null;
 
-  document.getElementById('kpi-polices').textContent     = totalActives;
-  document.getElementById('kpi-polices-sub').textContent = `sur ${rawRows.length - 1} polices totales`;
+  document.getElementById('kpi-polices').textContent = totalActives;
+  document.getElementById('kpi-polices-sub').textContent = `polices actives`;
   document.getElementById('kpi-portefeuille').textContent = fmtEur(totalPortef);
-  document.getElementById('kpi-production').textContent   = fmtEur(totalProd);
-  document.getElementById('kpi-fdg').textContent          = totalFDG !== null ? fmtEur(totalFDG) : '—';
+  document.getElementById('kpi-production').textContent = fmtEur(totalProd);
+  document.getElementById('kpi-fdg').textContent = totalFDG !== null ? fmtEur(totalFDG) : '—';
+
+  // Rythme projeté
+  const monthIdx = parseInt(currentMonth.split('-')[1]);
+  if (monthIdx > 0) {
+    const projected = totalProd * (12 / monthIdx);
+    const projPalier = getProdPalier(projected);
+    document.getElementById('kpi-rythme').textContent = fmtEur(projected);
+    document.getElementById('kpi-rythme-sub').textContent = `${monthIdx}/12 mois → ${projPalier.label}`;
+  }
+
+  // Delta vs mois précédent
+  const prev = getPrevMonth();
+  if (prev) {
+    const delta = totalProd - prev.totalProd;
+    const sign = delta >= 0 ? '+' : '';
+    document.getElementById('kpi-production-sub').innerHTML =
+      `Nouvelles affaires 2026 <span class="kpi-delta ${delta >= 0 ? 'up' : 'down'}">${sign}${fmtEur(delta)} vs mois préc.</span>`;
+  }
 }
 
-function renderBranches() {
-  const b = { auto: {c:0,p:0}, incendie: {c:0,p:0}, velo: {c:0,p:0}, pj: {c:0,p:0} };
+function renderBranches(md) {
+  const b = md.branches || { auto: {c:0,p:0}, incendie: {c:0,p:0}, velo: {c:0,p:0}, pj: {c:0,p:0} };
+  for (const [key, data] of Object.entries(b)) {
+    const countEl = document.getElementById(`b-${key}-count`);
+    const primeEl = document.getElementById(`b-${key}-prime`);
+    if (countEl) countEl.textContent = data.c;
+    if (primeEl) primeEl.textContent = fmtEur(data.p);
+  }
+}
 
-  rawRows.slice(1).forEach(row => {
-    if (!isActive(String(row[9] || ''))) return;
-    const branche = getBranche(String(row[3] || ''));
-    const prime   = parseFloat(row[6]) || 0;
-    if (b[branche]) { b[branche].c++; b[branche].p += prime; }
+function renderAlerts(sorted, md) {
+  const alerts = [];
+  const totalProd = md.totalProd;
+  const monthIdx = parseInt(currentMonth.split('-')[1]);
+
+  // Gestionnaires sous seuils
+  const underThreshold = sorted.filter(g => g.primePortefeuille < 75000 || g.primeProduction < 20000);
+  if (underThreshold.length > 0) {
+    alerts.push({
+      type: underThreshold.length > sorted.length / 2 ? 'danger' : 'warn',
+      title: 'Sous les seuils PAECT',
+      value: underThreshold.length,
+      sub: `gestionnaire${underThreshold.length > 1 ? 's' : ''} ne rempliss${underThreshold.length > 1 ? 'ent' : 'e'} pas les conditions`,
+      detail: underThreshold.map(g => {
+        const w = checkConditions(g);
+        return `<li><strong>${g.name}</strong> — ${w.join(', ')}</li>`;
+      }).join('')
+    });
+  }
+
+  // Rythme de production
+  if (monthIdx > 0) {
+    const projected = totalProd * (12 / monthIdx);
+    const projPalier = getProdPalier(projected);
+    const type = projPalier.pct >= 2 ? 'success' : projPalier.pct === 1 ? 'warn' : 'danger';
+    alerts.push({
+      type,
+      title: 'Rythme annuel projeté',
+      value: fmtEur(projected),
+      sub: projPalier.pct > 0 ? `Objectif ${projPalier.label} atteignable` : `Palier 1% (80k€) nécessite ${fmtEur(80000 - totalProd)} de plus`,
+      detail: ''
+    });
+  }
+
+  // Gestionnaires en baisse
+  const prev = getPrevMonth();
+  if (prev) {
+    const declining = sorted.filter(g => {
+      const prevG = prev.gestionnaires[g.name];
+      return prevG && g.primeProduction < prevG.primeProduction;
+    });
+    if (declining.length > 0) {
+      alerts.push({
+        type: 'warn',
+        title: 'En baisse vs mois précédent',
+        value: declining.length,
+        sub: `gestionnaire${declining.length > 1 ? 's' : ''} avec production en recul`,
+        detail: declining.map(g => {
+          const prevG = prev.gestionnaires[g.name];
+          const delta = g.primeProduction - prevG.primeProduction;
+          return `<li><strong>${g.name}</strong> — ${fmtEur(delta)}</li>`;
+        }).join('')
+      });
+    }
+  }
+
+  const grid = document.getElementById('alertsGrid');
+  grid.innerHTML = alerts.map((a, i) => `
+    <div class="alert-card ${a.type}" onclick="this.querySelector('.alert-detail').classList.toggle('open')">
+      <div class="alert-header">
+        <span class="alert-title">${a.type === 'danger' ? '🔴' : a.type === 'warn' ? '🟡' : '🟢'} ${a.title}</span>
+      </div>
+      <div class="alert-value">${a.value}</div>
+      <div class="alert-sub">${a.sub}</div>
+      ${a.detail ? `<div class="alert-detail"><ul>${a.detail}</ul></div>` : ''}
+    </div>
+  `).join('');
+}
+
+function renderProgressionBanner(sorted) {
+  const prev = getPrevMonth();
+  const banner = document.getElementById('progressionBanner');
+  if (!prev) { banner.style.display = 'none'; return; }
+
+  let bestName = '', bestDelta = -Infinity;
+  sorted.forEach(g => {
+    const prevG = prev.gestionnaires[g.name];
+    if (prevG) {
+      const delta = g.primeProduction - prevG.primeProduction;
+      if (delta > bestDelta) { bestDelta = delta; bestName = g.name; }
+    } else if (g.primeProduction > bestDelta) {
+      bestDelta = g.primeProduction; bestName = g.name;
+    }
   });
 
-  for (const [key, data] of Object.entries(b)) {
-    document.getElementById(`b-${key}-count`).textContent = data.c;
-    document.getElementById(`b-${key}-prime`).textContent  = fmtEur(data.p);
+  if (bestDelta > 0 && bestName) {
+    banner.style.display = 'flex';
+    banner.innerHTML = `
+      <div class="progression-banner-left">
+        <div class="progression-trophy">🏆</div>
+        <div class="progression-text">
+          <div class="progression-label">Meilleure progression du mois</div>
+          <div class="progression-name">${bestName}</div>
+        </div>
+      </div>
+      <div class="progression-stat">+${fmtEur(bestDelta)}</div>
+    `;
+  } else {
+    banner.style.display = 'none';
   }
 }
 
 function renderPalierBanner() {
   const totalProd = Object.values(gestMap).reduce((s, x) => s + x.primeProduction, 0);
-  const palier    = getProdPalier(totalProd);
-
-  // Calcul position absolue dans la barre globale [0 → 150k]
+  const palier = getProdPalier(totalProd);
   const MAX = 150000;
-  const pct  = Math.min(100, totalProd / MAX * 100);
+  const pct = Math.min(100, totalProd / MAX * 100);
   const barColor = palier.cls === 'palier-0' ? '#9ca3af'
                  : palier.cls === 'palier-1' ? '#f59e0b'
-                 : palier.cls === 'palier-2' ? '#3b82f6'
-                 : '#10b981';
+                 : palier.cls === 'palier-2' ? '#3b82f6' : '#10b981';
 
-  // Jalons
   const milestones = [
     { val: 80000,  label: '80 k€',  pct: 80000/MAX*100,  tier: 'Palier 1%' },
     { val: 100000, label: '100 k€', pct: 100000/MAX*100, tier: 'Palier 2%' },
     { val: 150000, label: '150 k€', pct: 100,            tier: 'Palier 3%' },
   ];
 
-  // Texte de progression
   let nextText;
-  if (totalProd <= 80000)   nextText = `encore <strong>${fmtEur(80000 - totalProd)}</strong> pour atteindre le Palier 1%`;
-  else if (totalProd <= 100000) nextText = `encore <strong>${fmtEur(100000 - totalProd)}</strong> pour atteindre le Palier 2%`;
-  else if (totalProd <= 150000) nextText = `encore <strong>${fmtEur(150000 - totalProd)}</strong> pour atteindre le Palier 3%`;
+  if (totalProd <= 80000) nextText = `encore <strong>${fmtEur(80000 - totalProd)}</strong> pour le Palier 1%`;
+  else if (totalProd <= 100000) nextText = `encore <strong>${fmtEur(100000 - totalProd)}</strong> pour le Palier 2%`;
+  else if (totalProd <= 150000) nextText = `encore <strong>${fmtEur(150000 - totalProd)}</strong> pour le Palier 3%`;
   else nextText = '✓ Palier maximum atteint';
 
-  const milestonesHTML = milestones.map(m => {
-    const reached = totalProd >= m.val;
-    return `
-      <div class="bar-milestone" style="left:${m.pct}%"></div>
-      <div class="bar-milestone-label" style="left:${m.pct}%">${m.label}</div>
-    `;
-  }).join('');
+  // Projection
+  const monthIdx = parseInt(currentMonth.split('-')[1]) || 1;
+  const projected = totalProd * (12 / monthIdx);
+  const projPct = Math.min(100, projected / MAX * 100);
+
+  const milestonesHTML = milestones.map(m =>
+    `<div class="bar-milestone" style="left:${m.pct}%"></div>
+     <div class="bar-milestone-label" style="left:${m.pct}%">${m.label}</div>`
+  ).join('');
 
   const milestoneItems = milestones.map(m => {
     const reached = totalProd >= m.val;
     return `<div class="palier-milestone-item ${reached ? 'reached' : ''}">
-      <span class="ms-label">${reached ? '✓' : '○'} ${m.tier}</span>
-      <span>${m.label}</span>
+      <span class="ms-label">${reached ? '✓' : '○'} ${m.tier}</span><span>${m.label}</span>
     </div>`;
   }).join('');
 
@@ -780,6 +1241,9 @@ function renderPalierBanner() {
     <div class="palier-bar-wrap">
       <div class="bar-track-big">
         <div class="bar-fill-big" style="width:${pct.toFixed(1)}%; background:${barColor}"></div>
+        <div class="bar-projected" style="left:${projPct.toFixed(1)}%">
+          <div class="bar-projected-label">Proj. ${fmtEur(projected)}</div>
+        </div>
         ${milestonesHTML}
       </div>
     </div>
@@ -788,54 +1252,76 @@ function renderPalierBanner() {
 }
 
 function renderRanking(sorted) {
-  const spInfo    = getSPInfo(spGlobalValue);
-  const hasRef    = Object.keys(refMap).length > 0;
-  const colSpan   = hasRef ? 8 : 7;
+  const spInfo = getSPInfo(spGlobalValue);
+  const hasRef = Object.keys(refMap).length > 0;
+  const prev = getPrevMonth();
+  const prevGestMap = prev ? prev.gestionnaires : null;
+  const scored = calcScores(sorted, prevGestMap);
+  scored.sort((a, b) => b.score - a.score);
+  const maxScore = Math.max(...scored.map(s => s.score), 1);
+  const colSpan = hasRef ? 11 : 10;
 
-  document.getElementById('rankBody').innerHTML = sorted.map((g, i) => {
-    const rank      = i + 1;
-    const fdg       = calcFDG(g);
-    const warns     = checkConditions(g);
-    const medal     = rank === 1 ? '🥇' : rank === 2 ? '🥈' : rank === 3 ? '🥉' : rank;
+  document.getElementById('rankBody').innerHTML = scored.map((g, i) => {
+    const rank = i + 1;
+    const fdg = calcFDG(g);
+    const warns = checkConditions(g);
+    const medal = rank === 1 ? '🥇' : rank === 2 ? '🥈' : rank === 3 ? '🥉' : rank;
     const activeCnt = g.polices.filter(p => p.active).length;
 
-    // Croissance
+    // Évolution vs mois précédent
+    let trendHTML = '<span class="trend-na">—</span>';
+    if (prevGestMap) {
+      const prevG = prevGestMap[g.name];
+      if (!prevG) {
+        trendHTML = '<span class="trend-new">🆕 Nouveau</span>';
+      } else {
+        const delta = g.primeProduction - prevG.primeProduction;
+        if (delta > 0) trendHTML = `<span class="trend-up">▲ +${fmtEur(delta)}</span>`;
+        else if (delta < 0) trendHTML = `<span class="trend-down">▼ ${fmtEur(delta)}</span>`;
+        else trendHTML = '<span class="trend-na">= stable</span>';
+      }
+    }
+
+    // Croissance N/N-1
     let growthHTML = '';
     if (hasRef) {
       const ref2025 = refMap[g.name];
       if (ref2025 && ref2025 > 0) {
         const delta = g.primePortefeuille - ref2025;
-        const pct   = delta / ref2025 * 100;
-        const cls   = pct >= 0 ? 'growth-up' : 'growth-down';
-        const sign  = pct >= 0 ? '+' : '';
-        growthHTML = `<td>
-          <div class="${cls}">${sign}${pct.toFixed(1)}%</div>
-          <div class="growth-sub">${sign}${fmtEur(delta)}</div>
-        </td>`;
+        const pctG = delta / ref2025 * 100;
+        const cls = pctG >= 0 ? 'growth-up' : 'growth-down';
+        const sign = pctG >= 0 ? '+' : '';
+        growthHTML = `<td><div class="${cls}">${sign}${pctG.toFixed(1)}%</div><div class="growth-sub">${sign}${fmtEur(delta)}</div></td>`;
       } else {
         growthHTML = `<td><span class="growth-na">Pas de réf.</span></td>`;
       }
     }
 
     const totalProd = Object.values(gestMap).reduce((s, x) => s + x.primeProduction, 0);
-    const palier    = getProdPalier(totalProd);
+    const palier = getProdPalier(totalProd);
+    const scorePct = (g.score / maxScore * 100).toFixed(0);
 
     return `
       <tr>
         <td><div class="rank-num">${medal}</div></td>
         <td>
-          <div class="gest-name">${g.name}</div>
+          <div class="gest-name">${g.name}${!prevGestMap || !prevGestMap[g.name] && prevGestMap ? '<span class="gest-badge">NEW</span>' : ''}</div>
           <div class="gest-site">${g.site || '—'}</div>
-          <div class="gest-count">${activeCnt} police${activeCnt > 1 ? 's' : ''} active${activeCnt > 1 ? 's' : ''}</div>
+          <div class="gest-count">${activeCnt} police${activeCnt > 1 ? 's' : ''}</div>
+        </td>
+        <td>
+          <div class="score-value">${g.score}</div>
+          <div class="score-bar-wrap"><div class="score-bar-track"><div class="score-bar-fill" style="width:${scorePct}%"></div></div></div>
+        </td>
+        <td>
+          <div class="amount-main">${fmtEur(g.primeProduction)}</div>
+          <div class="amount-sub">nouvelles affaires</div>
         </td>
         <td>
           <div class="amount-main">${fmtEur(g.primePortefeuille)}</div>
           <div class="amount-sub">HT</div>
         </td>
-        <td>
-          <div class="amount-main">${fmtEur(g.primeProduction)}</div>
-          <div class="amount-sub">nouvelles affaires 2026</div>
-        </td>
+        <td>${trendHTML}</td>
         <td>
           <div class="${fdg !== null ? 'fdg-amount' : 'fdg-na'}" id="fdg-val-${i}">
             ${fdg !== null ? fmtEur(fdg) : palier.pct === 0 ? 'Hors palier' : 'Saisir S/P'}
@@ -848,12 +1334,12 @@ function renderRanking(sorted) {
         <td>
           <div id="warn-${i}">
             ${warns.length === 0
-              ? '<span class="warn-badge warn-ok">✓ Conditions OK</span>'
+              ? '<span class="warn-badge warn-ok">✓ OK</span>'
               : warns.map(w => `<span class="warn-badge warn-bad">⚠ ${w}</span><br>`).join('')}
           </div>
         </td>
         <td>
-          <button class="expand-btn" onclick="toggleDetail(${i})" id="exp-${i}" title="Voir les polices">▶</button>
+          <button class="expand-btn" onclick="toggleDetail(${i})" id="exp-${i}">▶</button>
         </td>
       </tr>
       <tr class="detail-row" id="det-${i}">
@@ -873,56 +1359,181 @@ function buildDetailHTML(g) {
     <tr>
       <td>${p.preneur || '—'}</td>
       <td style="font-weight:600">${p.produit || '—'}</td>
-      <td>
-        <span class="branche-tag" style="background:${BRANCH_BG[p.branche]||'#f3f4f6'}; color:${BRANCH_COLOR[p.branche]||'#374151'}">
-          ${BRANCH_LABEL[p.branche]||'Autre'}
-        </span>
-      </td>
+      <td><span class="branche-tag" style="background:${BRANCH_BG[p.branche]||'#f3f4f6'}; color:${BRANCH_COLOR[p.branche]||'#374151'}">${BRANCH_LABEL[p.branche]||'Autre'}</span></td>
       <td style="color:#6b7280">${p.annee || '—'}</td>
       <td style="text-align:right; font-weight:600">${fmtEur(p.primeHT)}</td>
-      <td style="color:#6b7280; font-size:11px">${p.etat || '—'}</td>
     </tr>
   `).join('');
 
   const total = actives.reduce((s, p) => s + p.primeHT, 0);
-
   return `
     <table class="detail-table">
-      <thead>
-        <tr>
-          <td>Preneur</td><td>Produit</td><td>Branche</td>
-          <td>Année</td><td style="text-align:right">Prime HT</td><td>État paiement</td>
-        </tr>
-      </thead>
-      <tbody>
-        ${rows}
-        <tr>
-          <td colspan="4" style="font-weight:700; font-size:12px">Total actives</td>
-          <td style="text-align:right; font-weight:800; color:var(--navy)">${fmtEur(total)}</td>
-          <td></td>
-        </tr>
+      <thead><tr><td>Preneur</td><td>Produit</td><td>Branche</td><td>Année</td><td style="text-align:right">Prime HT</td></tr></thead>
+      <tbody>${rows}
+        <tr><td colspan="4" style="font-weight:700">Total</td><td style="text-align:right; font-weight:800; color:var(--navy)">${fmtEur(total)}</td></tr>
       </tbody>
     </table>
+  `;
+}
+
+// ── YEAR VIEW ─────────────────────────────────────────────────────────────
+function renderYearView() {
+  const keys = Object.keys(allMonths).sort();
+  if (!keys.length) return;
+
+  // Cumuls annuels
+  let totalProd = 0, totalPortef = 0, totalPolices = 0;
+  const allGest = {};
+
+  keys.forEach(k => {
+    const md = allMonths[k];
+    // On prend le dernier mois pour le portefeuille (c'est cumulatif)
+    totalProd = md.totalProd; // La prod dans le fichier est déjà cumulative (toutes polices 2026)
+    totalPortef = md.totalPortef;
+    totalPolices = md.totalPolices;
+
+    Object.values(md.gestionnaires).forEach(g => {
+      if (!allGest[g.name]) allGest[g.name] = { name: g.name, site: g.site, primeProduction: 0, polices: [], primePortefeuille: 0 };
+      allGest[g.name].primeProduction = g.primeProduction; // dernière valeur
+      allGest[g.name].primePortefeuille = g.primePortefeuille;
+      allGest[g.name].polices = g.polices;
+    });
+  });
+
+  const lastMonth = allMonths[keys[keys.length - 1]];
+  const monthIdx = parseInt(keys[keys.length - 1].split('-')[1]) || 1;
+  const projected = totalProd * (12 / monthIdx);
+  const palier = getProdPalier(totalProd);
+  const projPalier = getProdPalier(projected);
+
+  // KPIs annuels
+  document.getElementById('yearKpiGrid').innerHTML = `
+    <div class="kpi-card gold-accent">
+      <div class="kpi-label">Mois importés</div>
+      <div class="kpi-value">${keys.length}/12</div>
+      <div class="kpi-sub">Dernier : ${monthLabel(keys[keys.length - 1])}</div>
+    </div>
+    <div class="kpi-card green-accent">
+      <div class="kpi-label">Production cumul</div>
+      <div class="kpi-value">${fmtEur(totalProd)}</div>
+      <div class="kpi-sub">${palier.label}</div>
+    </div>
+    <div class="kpi-card purple-accent">
+      <div class="kpi-label">Rythme projeté</div>
+      <div class="kpi-value">${fmtEur(projected)}</div>
+      <div class="kpi-sub">${projPalier.label} en fin d'année</div>
+    </div>
+    <div class="kpi-card blue-accent">
+      <div class="kpi-label">Polices actives</div>
+      <div class="kpi-value">${totalPolices}</div>
+      <div class="kpi-sub">Dernier fichier</div>
+    </div>
+    <div class="kpi-card orange-accent">
+      <div class="kpi-label">Gestionnaires</div>
+      <div class="kpi-value">${Object.keys(allGest).length}</div>
+      <div class="kpi-sub">actifs cette année</div>
+    </div>
+  `;
+
+  // Chart
+  const maxProd = Math.max(...keys.map(k => allMonths[k].totalProd), 1);
+  document.getElementById('yearChart').innerHTML = keys.map(k => {
+    const md = allMonths[k];
+    const h = (md.totalProd / maxProd * 150);
+    const m = monthLabel(k).split(' ')[0].substring(0, 3);
+    return `<div class="bar-chart-col">
+      <div class="bar-chart-value">${fmt(md.totalProd)} €</div>
+      <div class="bar-chart-bar" style="height:${Math.max(4, h)}px"></div>
+      <div class="bar-chart-label">${m}</div>
+    </div>`;
+  }).join('');
+
+  // Palier annuel
+  renderYearPalier(totalProd, projected);
+
+  // Classement annuel
+  const sortedYear = Object.values(allGest).sort((a, b) => b.primeProduction - a.primeProduction);
+  const firstMonth = keys.length > 1 ? allMonths[keys[0]] : null;
+  const scored = calcScores(sortedYear, firstMonth ? firstMonth.gestionnaires : null);
+  scored.sort((a, b) => b.score - a.score);
+  const maxScore = Math.max(...scored.map(s => s.score), 1);
+
+  document.getElementById('yearRankBody').innerHTML = scored.map((g, i) => {
+    const rank = i + 1;
+    const medal = rank === 1 ? '🥇' : rank === 2 ? '🥈' : rank === 3 ? '🥉' : rank;
+    const activeCnt = g.polices.filter(p => p.active).length;
+    const scorePct = (g.score / maxScore * 100).toFixed(0);
+
+    let progHTML = '<span class="trend-na">—</span>';
+    if (firstMonth && firstMonth.gestionnaires[g.name]) {
+      const firstG = firstMonth.gestionnaires[g.name];
+      const delta = g.primeProduction - firstG.primeProduction;
+      if (delta > 0) progHTML = `<span class="trend-up">▲ +${fmtEur(delta)}</span>`;
+      else if (delta < 0) progHTML = `<span class="trend-down">▼ ${fmtEur(delta)}</span>`;
+      else progHTML = '<span class="trend-na">= stable</span>';
+    }
+
+    return `<tr>
+      <td><div class="rank-num">${medal}</div></td>
+      <td><div class="gest-name">${g.name}</div><div class="gest-site">${g.site || '—'}</div></td>
+      <td><div class="score-value">${g.score}</div><div class="score-bar-wrap"><div class="score-bar-track"><div class="score-bar-fill" style="width:${scorePct}%"></div></div></div></td>
+      <td><div class="amount-main">${fmtEur(g.primeProduction)}</div></td>
+      <td>${activeCnt} police${activeCnt > 1 ? 's' : ''}</td>
+      <td>${progHTML}</td>
+    </tr>`;
+  }).join('');
+}
+
+function renderYearPalier(totalProd, projected) {
+  const palier = getProdPalier(totalProd);
+  const MAX = 150000;
+  const pct = Math.min(100, totalProd / MAX * 100);
+  const projPct = Math.min(100, projected / MAX * 100);
+  const barColor = palier.cls === 'palier-0' ? '#9ca3af' : palier.cls === 'palier-1' ? '#f59e0b' : palier.cls === 'palier-2' ? '#3b82f6' : '#10b981';
+
+  const milestones = [
+    { val: 80000, label: '80 k€', pct: 80000/MAX*100 },
+    { val: 100000, label: '100 k€', pct: 100000/MAX*100 },
+    { val: 150000, label: '150 k€', pct: 100 },
+  ];
+
+  document.getElementById('yearPalierBanner').innerHTML = `
+    <div class="palier-banner-top">
+      <div>
+        <div class="palier-banner-title">Palier collectif — Année 2026</div>
+        <div class="palier-banner-prod">${fmtEur(totalProd)} <span style="font-size:14px;color:var(--text-s);font-weight:400">actuels</span> → <span style="color:#8b5cf6">${fmtEur(projected)}</span> <span style="font-size:14px;color:var(--text-s);font-weight:400">projetés</span></div>
+      </div>
+      <span class="palier-badge ${palier.cls}">${palier.pct > 0 ? '✓ ' : ''}${palier.label}</span>
+    </div>
+    <div class="palier-bar-wrap">
+      <div class="bar-track-big">
+        <div class="bar-fill-big" style="width:${pct.toFixed(1)}%; background:${barColor}"></div>
+        <div class="bar-projected" style="left:${projPct.toFixed(1)}%">
+          <div class="bar-projected-label">Proj.</div>
+        </div>
+        ${milestones.map(m => `<div class="bar-milestone" style="left:${m.pct}%"></div><div class="bar-milestone-label" style="left:${m.pct}%">${m.label}</div>`).join('')}
+      </div>
+    </div>
   `;
 }
 
 // ── INTERACTIONS ──────────────────────────────────────────────────────────
 function updateSPGlobal(value) {
   spGlobalValue = value;
-  const spInfo    = getSPInfo(value);
+  const spInfo = getSPInfo(value);
   const totalProd = Object.values(gestMap).reduce((s, x) => s + x.primeProduction, 0);
-  const palier    = getProdPalier(totalProd);
+  const palier = getProdPalier(totalProd);
 
   const multEl = document.getElementById('spGlobalMult');
   if (multEl) { multEl.textContent = spInfo.label; multEl.className = `sp-mult ${spInfo.cls}`; }
 
   const sorted = getSorted();
   sorted.forEach((g, i) => {
-    const fdg   = calcFDG(g);
+    const fdg = calcFDG(g);
     const valEl = document.getElementById(`fdg-val-${i}`);
     const subEl = document.getElementById(`fdg-sub-${i}`);
     if (valEl) {
-      valEl.className   = fdg !== null ? 'fdg-amount' : 'fdg-na';
+      valEl.className = fdg !== null ? 'fdg-amount' : 'fdg-na';
       valEl.textContent = fdg !== null ? fmtEur(fdg) : palier.pct === 0 ? 'Hors palier' : 'Saisir S/P';
     }
     if (subEl) {
@@ -930,8 +1541,7 @@ function updateSPGlobal(value) {
     }
   });
 
-  // Refresh KPI FDG global
-  const allFDG   = sorted.map(g => calcFDG(g)).filter(v => v !== null);
+  const allFDG = sorted.map(g => calcFDG(g)).filter(v => v !== null);
   const totalFDG = allFDG.length ? allFDG.reduce((s, v) => s + v, 0) : null;
   document.getElementById('kpi-fdg').textContent = totalFDG !== null ? fmtEur(totalFDG) : '—';
 }
@@ -941,26 +1551,6 @@ function toggleDetail(index) {
   const btn = document.getElementById(`exp-${index}`);
   const open = row.classList.toggle('open');
   btn.textContent = open ? '▼' : '▶';
-}
-
-function resetDashboard() {
-  document.getElementById('uploadSection').style.display = 'flex';
-  document.getElementById('dashboard').style.display = 'none';
-  document.getElementById('fileInfo').textContent = '';
-  document.getElementById('resetBtn').style.display = 'none';
-  document.getElementById('refBtn').style.display = 'none';
-  document.getElementById('refBtn').classList.remove('ref-loaded');
-  document.getElementById('refBtn').childNodes[0].textContent = '📂 + Référence 2025 ';
-  document.getElementById('refInput').value = '';
-  document.getElementById('fileInput').value = '';
-  document.getElementById('spGlobalInput').value = '';
-  document.getElementById('spGlobalMult').textContent = '—';
-  document.getElementById('spGlobalMult').className = 'sp-mult orange';
-  document.getElementById('th-growth').style.display = 'none';
-  rawRows = [];
-  gestMap = {};
-  refMap  = {};
-  spGlobalValue = '';
 }
 </script>
 </body>
