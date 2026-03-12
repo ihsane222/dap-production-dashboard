@@ -111,11 +111,19 @@ body {
 .imported-months-title { font-size: 13px; font-weight: 700; color: var(--navy); margin-bottom: 10px; }
 .month-chips { display: flex; flex-wrap: wrap; gap: 8px; }
 .month-chip {
-  display: inline-flex; align-items: center; gap: 4px;
+  display: inline-flex; align-items: center; gap: 6px;
   padding: 6px 14px; border-radius: 100px;
   font-size: 12px; font-weight: 600;
   background: #dcfce7; color: #15803d;
 }
+.month-chip-delete {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 18px; height: 18px; border-radius: 50%;
+  background: rgba(0,0,0,0.1); border: none; cursor: pointer;
+  font-size: 11px; color: #15803d; line-height: 1;
+  transition: background 0.2s;
+}
+.month-chip-delete:hover { background: #ef4444; color: white; }
 
 /* ── MAIN ── */
 .main { max-width: 1380px; margin: 0 auto; padding: 28px 24px; }
@@ -679,8 +687,11 @@ const fmtEur = n => fmt(n) + ' €';
 const MONTH_NAMES = ['Janvier','Février','Mars','Avril','Mai','Juin','Juillet','Août','Septembre','Octobre','Novembre','Décembre'];
 
 function detectMonthKey(filename, sheetNames) {
-  // Essayer depuis le nom du fichier: "DAP SOLIDARITY - 2026 - 03-03.xlsx" → "2026-03"
-  const m = filename.match(/(\d{4})\s*-\s*(\d{2})/);
+  // Format attendu: "DAP SOLIDARITY - 2026 - DD-MM.xlsx" (format belge jour-mois)
+  const m3 = filename.match(/(\d{4})\s*-\s*(\d{2})\s*-\s*(\d{2})/);
+  if (m3) return m3[1] + '-' + m3[3]; // m3[3] = mois (2e nombre après l'année)
+  // Fallback: "2026 - 03" (juste année-mois)
+  const m = filename.match(/(\d{4})\s*-\s*(\d{2})$/);
   if (m) return m[1] + '-' + m[2];
   // Essayer depuis le nom de l'onglet
   for (const sn of sheetNames) {
@@ -826,8 +837,33 @@ function showImportedMonths() {
   if (keys.length === 0) return;
   document.getElementById('importedMonths').style.display = 'block';
   document.getElementById('monthChips').innerHTML = keys.map(k =>
-    `<span class="month-chip">✓ ${monthLabel(k)}</span>`
+    `<span class="month-chip">✓ ${monthLabel(k)}<button class="month-chip-delete" onclick="deleteMonth('${k}')" title="Supprimer ce mois">✕</button></span>`
   ).join('');
+}
+
+async function deleteMonth(monthKey) {
+  if (!confirm(`Supprimer les données de "${monthLabel(monthKey)}" ?`)) return;
+  delete allMonths[monthKey];
+  // Sauvegarder la suppression côté serveur
+  try {
+    await fetch(WEBHOOK_POST, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ deleteMonth: monthKey })
+    });
+  } catch(e) { /* silencieux */ }
+  const keys = Object.keys(allMonths).sort();
+  if (keys.length > 0) {
+    showImportedMonths();
+    selectMonthAndShow(keys[keys.length - 1]);
+  } else {
+    // Plus aucun mois : réinitialiser l'interface
+    document.getElementById('importedMonths').style.display = 'none';
+    document.getElementById('monthChips').innerHTML = '';
+    document.getElementById('dashboard').style.display = 'none';
+    document.getElementById('addMonthBtn').style.display = 'none';
+    document.getElementById('dropZone').style.display = '';
+  }
 }
 
 // ── DRAG & DROP ───────────────────────────────────────────────────────────
