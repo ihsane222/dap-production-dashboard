@@ -124,6 +124,12 @@ body {
   transition: background 0.2s;
 }
 .month-chip-delete:hover { background: #ef4444; color: white; }
+.delete-month-btn {
+  margin-left: auto; padding: 6px 14px; border-radius: 8px;
+  border: 1.5px solid #fca5a5; background: #fef2f2; color: #b91c1c;
+  font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.2s;
+}
+.delete-month-btn:hover { background: #ef4444; color: white; border-color: #ef4444; }
 
 /* ── MAIN ── */
 .main { max-width: 1380px; margin: 0 auto; padding: 28px 24px; }
@@ -501,6 +507,7 @@ body {
     <div class="month-selector">
       <label>Mois :</label>
       <select class="month-select" id="monthSelect" onchange="selectMonth(this.value)"></select>
+      <button class="delete-month-btn" id="deleteMonthBtn" onclick="deleteMonth(currentMonth)" title="Supprimer ce mois">Supprimer ce mois</button>
     </div>
 
     <div class="note-card" id="noteCard"></div>
