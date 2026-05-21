@@ -1,1608 +1,360 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>DAP Solidarity — Production 2026</title>
-<script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
-<style>
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
-  background: #f0f2f5;
-  color: #1a1a2e;
-  min-height: 100vh;
-}
-:root {
-  --navy:   #1a1a2e;
-  --blue:   #0f3460;
-  --gold:   #e8b84b;
-  --green:  #10b981;
-  --red:    #ef4444;
-  --orange: #f59e0b;
-  --border: #e2e8f0;
-  --text-s: #6b7280;
-}
-
-/* ── HEADER ── */
-.header {
-  background: linear-gradient(135deg, var(--navy), var(--blue));
-  padding: 0 32px;
-  display: flex; align-items: center; justify-content: space-between;
-  height: 64px;
-  box-shadow: 0 2px 12px rgba(0,0,0,0.2);
-  position: sticky; top: 0; z-index: 100;
-}
-.header-left { display: flex; align-items: center; gap: 16px; }
-.header-logo { height: 36px; background: white; padding: 5px 12px; border-radius: 7px; }
-.header-title { color: white; font-size: 16px; font-weight: 700; }
-.header-title span { color: var(--gold); }
-.header-right { display: flex; align-items: center; gap: 12px; }
-.file-info { color: rgba(255,255,255,0.6); font-size: 12px; max-width: 220px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.header-btn {
-  background: rgba(255,255,255,0.1);
-  border: 1px solid rgba(255,255,255,0.2);
-  color: white; padding: 8px 16px; border-radius: 8px;
-  cursor: pointer; font-size: 13px; font-weight: 600;
-  transition: background 0.2s; position: relative; overflow: hidden;
-}
-.header-btn:hover { background: rgba(255,255,255,0.2); }
-.header-btn input[type="file"] {
-  position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%;
-}
-.header-btn.gold { background: rgba(232,184,75,0.15); border-color: rgba(232,184,75,0.4); color: var(--gold); }
-.header-btn.gold:hover { background: rgba(232,184,75,0.25); }
-.header-btn.loaded { color: #86efac !important; border-color: rgba(134,239,172,0.4) !important; background: rgba(134,239,172,0.1) !important; }
-
-/* ── TABS ── */
-.view-tabs {
-  display: flex; gap: 0; margin-bottom: 20px;
-  background: white; border-radius: 12px; overflow: hidden;
-  border: 1px solid var(--border); box-shadow: 0 1px 4px rgba(26,26,46,0.04);
-}
-.view-tab {
-  flex: 1; padding: 14px 20px; text-align: center;
-  font-size: 13px; font-weight: 700; cursor: pointer;
-  color: var(--text-s); transition: all 0.2s; border: none; background: white;
-}
-.view-tab:hover { background: #f9fafb; }
-.view-tab.active { background: var(--navy); color: white; }
-
-/* ── UPLOAD ── */
-.upload-section {
-  display: flex; flex-direction: column;
-  align-items: center; justify-content: center;
-  min-height: calc(100vh - 64px); padding: 40px;
-}
-.upload-card {
-  background: white; border-radius: 20px;
-  padding: 56px 72px; text-align: center;
-  box-shadow: 0 4px 24px rgba(26,26,46,0.08);
-  max-width: 600px; width: 100%;
-}
-.upload-icon { font-size: 56px; margin-bottom: 18px; }
-.upload-title { font-size: 22px; font-weight: 800; color: var(--navy); margin-bottom: 8px; }
-.upload-sub { color: var(--text-s); font-size: 14px; margin-bottom: 28px; line-height: 1.6; }
-.drop-zone {
-  border: 2px dashed var(--border); border-radius: 14px;
-  padding: 32px; cursor: pointer; transition: all 0.2s; position: relative;
-}
-.drop-zone:hover, .drop-zone.drag-over { border-color: var(--gold); background: #fefce8; }
-.drop-zone input[type="file"] {
-  position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%;
-}
-.drop-btn {
-  display: inline-block;
-  background: linear-gradient(135deg, var(--navy), var(--blue));
-  color: white; padding: 12px 28px; border-radius: 10px;
-  font-size: 14px; font-weight: 700; margin-bottom: 10px;
-}
-.drop-text { font-size: 13px; color: var(--text-s); }
-.upload-note {
-  margin-top: 20px; font-size: 12px; color: var(--text-s);
-  padding: 12px 16px; background: #f9fafb; border-radius: 8px; line-height: 1.7;
-  text-align: left;
-}
-
-/* Mois déjà importés */
-.imported-months {
-  margin-top: 24px; text-align: left;
-}
-.imported-months-title { font-size: 13px; font-weight: 700; color: var(--navy); margin-bottom: 10px; }
-.month-chips { display: flex; flex-wrap: wrap; gap: 8px; }
-.month-chip {
-  display: inline-flex; align-items: center; gap: 6px;
-  padding: 6px 14px; border-radius: 100px;
-  font-size: 12px; font-weight: 600;
-  background: #dcfce7; color: #15803d;
-}
-.month-chip-delete {
-  display: inline-flex; align-items: center; justify-content: center;
-  width: 18px; height: 18px; border-radius: 50%;
-  background: rgba(0,0,0,0.1); border: none; cursor: pointer;
-  font-size: 11px; color: #15803d; line-height: 1;
-  transition: background 0.2s;
-}
-.month-chip-delete:hover { background: #ef4444; color: white; }
-.delete-month-btn {
-  margin-left: auto; padding: 6px 14px; border-radius: 8px;
-  border: 1.5px solid #fca5a5; background: #fef2f2; color: #b91c1c;
-  font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.2s;
-}
-.delete-month-btn:hover { background: #ef4444; color: white; border-color: #ef4444; }
-
-/* ── MAIN ── */
-.main { max-width: 1380px; margin: 0 auto; padding: 28px 24px; }
-
-/* ── KPI GRID ── */
-.kpi-grid {
-  display: grid; grid-template-columns: repeat(5, 1fr);
-  gap: 16px; margin-bottom: 20px;
-}
-.kpi-card {
-  background: white; border-radius: 14px; padding: 20px;
-  border: 1px solid var(--border);
-  box-shadow: 0 1px 6px rgba(26,26,46,0.05);
-}
-.kpi-label { font-size: 11px; color: var(--text-s); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; }
-.kpi-value { font-size: 28px; font-weight: 800; color: var(--navy); line-height: 1; }
-.kpi-sub   { font-size: 12px; color: var(--text-s); margin-top: 6px; }
-.kpi-delta { font-size: 12px; font-weight: 700; margin-top: 4px; }
-.kpi-delta.up   { color: #15803d; }
-.kpi-delta.down { color: #b91c1c; }
-.kpi-card.gold-accent   { border-top: 3px solid var(--gold); }
-.kpi-card.green-accent  { border-top: 3px solid var(--green); }
-.kpi-card.blue-accent   { border-top: 3px solid #3b82f6; }
-.kpi-card.orange-accent { border-top: 3px solid var(--orange); }
-.kpi-card.purple-accent { border-top: 3px solid #8b5cf6; }
-
-/* ── BRANCHES ── */
-.branche-grid {
-  display: grid; grid-template-columns: repeat(4, 1fr);
-  gap: 12px; margin-bottom: 20px;
-}
-.branche-card {
-  background: white; border-radius: 12px; padding: 16px;
-  border: 1px solid var(--border); box-shadow: 0 1px 4px rgba(26,26,46,0.04);
-}
-.branche-name { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; }
-.branche-count { font-size: 26px; font-weight: 800; color: var(--navy); }
-.branche-prime { font-size: 12px; color: var(--text-s); margin-top: 3px; }
-.b-auto     { border-top: 3px solid #3b82f6; }
-.b-incendie { border-top: 3px solid #f59e0b; }
-.b-velo     { border-top: 3px solid #10b981; }
-.b-pj       { border-top: 3px solid #8b5cf6; }
-.b-auto     .branche-name { color: #1d4ed8; }
-.b-incendie .branche-name { color: #92400e; }
-.b-velo     .branche-name { color: #065f46; }
-.b-pj       .branche-name { color: #5b21b6; }
-
-/* ── NOTE ── */
-.note-card {
-  background: #fefce8; border: 1px solid #fde68a;
-  border-radius: 12px; padding: 14px 18px;
-  font-size: 13px; color: #78350f; margin-bottom: 20px; line-height: 1.6;
-}
-
-/* ── ALERTS ── */
-.alerts-grid {
-  display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: 12px; margin-bottom: 20px;
-}
-.alert-card {
-  background: white; border-radius: 12px; padding: 16px;
-  border: 1px solid var(--border); box-shadow: 0 1px 4px rgba(26,26,46,0.04);
-  cursor: pointer; transition: box-shadow 0.2s;
-}
-.alert-card:hover { box-shadow: 0 3px 10px rgba(26,26,46,0.08); }
-.alert-card.warn { border-left: 4px solid var(--orange); }
-.alert-card.danger { border-left: 4px solid var(--red); }
-.alert-card.success { border-left: 4px solid var(--green); }
-.alert-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
-.alert-title { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
-.alert-card.warn .alert-title { color: #92400e; }
-.alert-card.danger .alert-title { color: #b91c1c; }
-.alert-card.success .alert-title { color: #15803d; }
-.alert-value { font-size: 22px; font-weight: 800; color: var(--navy); }
-.alert-sub { font-size: 12px; color: var(--text-s); margin-top: 4px; }
-.alert-detail { display: none; margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--border); font-size: 12px; color: var(--text-s); }
-.alert-detail.open { display: block; }
-.alert-detail ul { list-style: none; padding: 0; }
-.alert-detail li { padding: 3px 0; }
-
-/* ── BEST PROGRESSION BANNER ── */
-.progression-banner {
-  background: linear-gradient(135deg, #fefce8, #fef3c7);
-  border: 1px solid #fde68a; border-radius: 14px;
-  padding: 16px 24px; margin-bottom: 20px;
-  display: flex; align-items: center; justify-content: space-between; gap: 16px;
-  flex-wrap: wrap;
-}
-.progression-banner-left { display: flex; align-items: center; gap: 12px; }
-.progression-trophy { font-size: 32px; }
-.progression-text { }
-.progression-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: #92400e; }
-.progression-name { font-size: 18px; font-weight: 800; color: var(--navy); }
-.progression-stat { font-size: 18px; font-weight: 800; color: #15803d; }
-
-/* ── PALIER BANNER ── */
-.palier-banner {
-  background: white; border-radius: 14px;
-  border: 1px solid var(--border); box-shadow: 0 1px 6px rgba(26,26,46,0.05);
-  margin-bottom: 16px; padding: 20px 24px;
-}
-.palier-banner-top {
-  display: flex; align-items: center; justify-content: space-between;
-  margin-bottom: 14px; flex-wrap: wrap; gap: 12px;
-}
-.palier-banner-title { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-s); }
-.palier-banner-prod  { font-size: 22px; font-weight: 800; color: var(--navy); }
-.palier-banner-next  { font-size: 13px; color: var(--text-s); }
-.palier-badge {
-  display: inline-flex; align-items: center; gap: 4px;
-  font-size: 12px; font-weight: 700; padding: 4px 12px; border-radius: 100px;
-  white-space: nowrap;
-}
-.palier-0 { background: #f3f4f6; color: #6b7280; }
-.palier-1 { background: #fef3c7; color: #92400e; }
-.palier-2 { background: #dbeafe; color: #1d4ed8; }
-.palier-3 { background: #dcfce7; color: #15803d; }
-
-.palier-bar-wrap { position: relative; margin-bottom: 8px; }
-.bar-track-big { height: 10px; background: #f0f2f5; border-radius: 100px; overflow: visible; position: relative; }
-.bar-fill-big  { height: 10px; border-radius: 100px; transition: width 0.8s ease; position: absolute; top: 0; left: 0; }
-.bar-projected {
-  position: absolute; top: -2px; width: 3px; height: 14px;
-  background: var(--navy); border-radius: 2px; opacity: 0.4;
-  transition: left 0.8s ease;
-}
-.bar-projected-label {
-  position: absolute; top: -20px; font-size: 9px; font-weight: 700;
-  color: var(--navy); white-space: nowrap; transform: translateX(-50%);
-}
-.bar-milestone {
-  position: absolute; top: -4px;
-  width: 2px; height: 18px; background: #d1d5db;
-}
-.bar-milestone-label {
-  position: absolute; top: 18px;
-  font-size: 10px; color: var(--text-s); white-space: nowrap;
-  transform: translateX(-50%);
-}
-.palier-milestones { display: flex; justify-content: space-between; margin-top: 22px; }
-.palier-milestone-item { text-align: center; font-size: 11px; color: var(--text-s); }
-.palier-milestone-item.reached { color: var(--green); font-weight: 700; }
-.palier-milestone-item .ms-label { font-weight: 700; display: block; }
-
-/* ── SP GLOBAL ── */
-.controls-row {
-  background: white; border-radius: 14px; padding: 14px 20px;
-  border: 1px solid var(--border); box-shadow: 0 1px 6px rgba(26,26,46,0.05);
-  margin-bottom: 20px; display: flex; align-items: center; gap: 16px; flex-wrap: wrap;
-}
-.sp-global-label { font-size: 13px; font-weight: 700; color: var(--navy); white-space: nowrap; }
-.sp-global-hint  { font-size: 12px; color: var(--text-s); margin-left: auto; }
-
-/* ── CARD ── */
-.card {
-  background: white; border-radius: 14px;
-  border: 1px solid var(--border); overflow: hidden;
-  box-shadow: 0 1px 6px rgba(26,26,46,0.05); margin-bottom: 24px;
-}
-.card-header {
-  padding: 16px 20px; border-bottom: 1px solid var(--border);
-  display: flex; align-items: center; justify-content: space-between;
-}
-.card-title { font-size: 14px; font-weight: 700; color: var(--navy); }
-.card-sub   { font-size: 12px; color: var(--text-s); }
-
-/* ── RANK TABLE ── */
-.table-wrap { overflow-x: auto; }
-.rank-table { width: 100%; border-collapse: collapse; font-size: 13px; }
-.rank-table thead th {
-  background: var(--navy); color: white;
-  padding: 10px 14px; text-align: left;
-  font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600;
-  white-space: nowrap;
-}
-.rank-table tbody tr { border-bottom: 1px solid var(--border); transition: background 0.15s; }
-.rank-table tbody tr.detail-row { border-bottom: none; }
-.rank-table tbody tr:hover { background: #fafafa; }
-.rank-table tbody tr.detail-row:hover { background: #f9fafb; }
-.rank-table tbody td { padding: 12px 14px; color: var(--navy); vertical-align: middle; }
-
-.rank-num { font-size: 20px; text-align: center; }
-.gest-name  { font-weight: 700; font-size: 14px; }
-.gest-site  { font-size: 11px; color: var(--text-s); margin-top: 2px; }
-.gest-count { font-size: 11px; color: var(--text-s); margin-top: 2px; }
-.gest-badge { display: inline-block; font-size: 9px; font-weight: 700; padding: 1px 6px; border-radius: 100px; background: #dbeafe; color: #1d4ed8; margin-left: 4px; }
-
-.amount-main { font-weight: 700; font-size: 14px; }
-.amount-sub  { font-size: 11px; color: var(--text-s); margin-top: 2px; }
-
-/* Score */
-.score-bar-wrap { width: 80px; }
-.score-bar-track { height: 6px; background: #f0f2f5; border-radius: 100px; overflow: hidden; }
-.score-bar-fill  { height: 6px; border-radius: 100px; background: var(--gold); transition: width 0.6s ease; }
-.score-value { font-size: 13px; font-weight: 800; color: var(--navy); margin-bottom: 3px; }
-
-/* Trend */
-.trend-up   { color: #15803d; font-weight: 700; font-size: 12px; }
-.trend-down { color: #b91c1c; font-weight: 700; font-size: 12px; }
-.trend-new  { color: #1d4ed8; font-weight: 700; font-size: 12px; }
-.trend-na   { color: var(--text-s); font-size: 12px; }
-
-/* S/P */
-.sp-input {
-  width: 62px; padding: 5px 8px;
-  border: 1.5px solid var(--border); border-radius: 7px;
-  font-size: 13px; font-weight: 600; color: var(--navy);
-  text-align: center; outline: none;
-}
-.sp-input:focus { border-color: var(--navy); }
-.sp-label { font-size: 11px; color: var(--text-s); }
-.sp-mult {
-  display: inline-flex; align-items: center;
-  font-size: 11px; font-weight: 700; padding: 2px 8px;
-  border-radius: 100px; white-space: nowrap;
-}
-.sp-mult.green  { background: #dcfce7; color: #15803d; }
-.sp-mult.orange { background: #fef3c7; color: #92400e; }
-.sp-mult.red    { background: #fee2e2; color: #b91c1c; }
-
-/* FDG */
-.fdg-amount { font-size: 17px; font-weight: 800; color: var(--green); }
-.fdg-na     { font-size: 13px; color: var(--text-s); }
-.fdg-sub    { font-size: 10px; color: var(--text-s); margin-top: 3px; }
-
-/* Growth */
-.growth-up   { font-size: 14px; font-weight: 700; color: #15803d; }
-.growth-down { font-size: 14px; font-weight: 700; color: #b91c1c; }
-.growth-na   { font-size: 12px; color: var(--text-s); }
-.growth-sub  { font-size: 11px; color: var(--text-s); margin-top: 2px; }
-
-/* Warn */
-.warn-badge {
-  display: inline-flex; align-items: center; gap: 3px;
-  font-size: 10px; font-weight: 600; padding: 2px 7px; border-radius: 100px;
-  white-space: nowrap; margin-bottom: 3px;
-}
-.warn-ok  { background: #dcfce7; color: #15803d; }
-.warn-bad { background: #fef3c7; color: #92400e; }
-
-/* Expand */
-.expand-btn {
-  background: none; border: none; cursor: pointer;
-  color: var(--text-s); font-size: 14px; padding: 6px 10px;
-  border-radius: 6px; transition: background 0.15s;
-}
-.expand-btn:hover { background: #f0f2f5; }
-
-/* Detail row */
-.detail-row { display: none; background: #f9fafb; }
-.detail-row.open { display: table-row; }
-.detail-inner { padding: 4px 14px 16px 54px; }
-.detail-table { width: 100%; border-collapse: collapse; font-size: 12px; margin-top: 8px; }
-.detail-table td { padding: 6px 10px; border-bottom: 1px solid var(--border); color: #374151; }
-.detail-table tr:last-child td { border-bottom: none; }
-.detail-table thead td { font-weight: 600; font-size: 11px; color: var(--text-s); text-transform: uppercase; letter-spacing: 0.4px; border-bottom: 2px solid var(--border); background: transparent; }
-.branche-tag {
-  display: inline-block; padding: 2px 8px; border-radius: 100px;
-  font-size: 10px; font-weight: 700;
-}
-
-/* ── YEAR VIEW ── */
-.year-view { display: none; }
-.year-view.active { display: block; }
-.month-view { display: none; }
-.month-view.active { display: block; }
-
-/* Month selector */
-.month-selector {
-  background: white; border-radius: 12px; padding: 14px 20px;
-  border: 1px solid var(--border); box-shadow: 0 1px 4px rgba(26,26,46,0.04);
-  margin-bottom: 20px; display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
-}
-.month-selector label { font-size: 13px; font-weight: 700; color: var(--navy); }
-.month-select {
-  padding: 8px 14px; border: 1.5px solid var(--border); border-radius: 8px;
-  font-size: 13px; font-weight: 600; color: var(--navy); background: white; cursor: pointer;
-}
-
-/* Year chart */
-.chart-card {
-  background: white; border-radius: 14px; padding: 24px;
-  border: 1px solid var(--border); box-shadow: 0 1px 6px rgba(26,26,46,0.05);
-  margin-bottom: 20px;
-}
-.chart-title { font-size: 13px; font-weight: 700; color: var(--navy); margin-bottom: 16px; }
-.bar-chart { display: flex; align-items: flex-end; gap: 8px; height: 180px; padding-bottom: 24px; position: relative; }
-.bar-chart-col { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; position: relative; height: 100%; justify-content: flex-end; }
-.bar-chart-bar {
-  width: 100%; max-width: 60px; border-radius: 6px 6px 0 0;
-  background: linear-gradient(180deg, var(--gold), #d4a034);
-  transition: height 0.6s ease; min-height: 4px;
-}
-.bar-chart-label { font-size: 10px; color: var(--text-s); font-weight: 600; position: absolute; bottom: 0; }
-.bar-chart-value { font-size: 10px; font-weight: 700; color: var(--navy); }
-
-/* Convention recap */
-.conv-card {
-  background: white; border-radius: 14px; padding: 20px;
-  border: 1px solid var(--border); box-shadow: 0 1px 6px rgba(26,26,46,0.05);
-  margin-bottom: 24px; font-size: 13px; color: var(--navy);
-}
-.conv-title { font-size: 13px; font-weight: 700; color: var(--navy); margin-bottom: 12px; }
-.conv-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
-.conv-section h4 { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-s); margin-bottom: 8px; }
-.conv-row { display: flex; justify-content: space-between; padding: 4px 0; border-bottom: 1px solid #f0f2f5; font-size: 12px; }
-.conv-row:last-child { border-bottom: none; }
-.conv-val { font-weight: 700; }
-
-@media (max-width: 1024px) {
-  .kpi-grid { grid-template-columns: repeat(2, 1fr); }
-  .branche-grid { grid-template-columns: repeat(2, 1fr); }
-  .conv-grid { grid-template-columns: 1fr; }
-}
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>DAP Solidarity · Dashboard Production · Convention Aedes</title>
+  <link rel="icon" href="assets/logo-dap.svg">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/styles.css">
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js" defer></script>
 </head>
 <body>
 
-<!-- HEADER -->
-<div class="header">
-  <div class="header-left">
-    <img src="assets/logo-dap.png" alt="DAP" class="header-logo" onerror="this.style.display='none'">
-    <div class="header-title">DAP Solidarity — <span>Production 2026</span></div>
-  </div>
-  <div class="header-right">
-    <span class="file-info" id="fileInfo"></span>
-    <button class="header-btn gold" id="addMonthBtn" style="display:none">
-      + Ajouter un mois
-      <input type="file" accept=".xls,.xlsx" id="addMonthInput" onchange="handleFile(this.files[0])">
-    </button>
-    <button class="header-btn gold" id="refBtn" style="display:none">
-      + Référence 2025
-      <input type="file" accept=".xls,.xlsx" id="refInput" onchange="handleRefFile(this.files[0])">
-    </button>
+<!-- Overlay de drag & drop global (page entière) -->
+<div id="drop-overlay" class="drop-overlay hidden">
+  <div class="drop-overlay-card">
+    <div class="drop-overlay-icon">⬇</div>
+    <div class="drop-overlay-title">Dépose les fichiers Excel ici</div>
+    <div class="drop-overlay-sub">Fichiers Excel de suivi Aedes</div>
   </div>
 </div>
 
-<!-- UPLOAD -->
-<div class="upload-section" id="uploadSection">
-  <div class="upload-card">
-    <div class="upload-icon">📊</div>
-    <div class="upload-title">Suivi Production AEDES 2026</div>
-    <div class="upload-sub">Importez le fichier XLS mensuel de Julien pour alimenter le dashboard.<br>Les données sont partagées — tout le monde voit les mêmes résultats.</div>
-
-    <div class="drop-zone" id="dropZone">
-      <input type="file" accept=".xls,.xlsx" id="fileInput" onchange="handleFile(this.files[0])">
-      <div class="drop-btn">📂 Importer un fichier mensuel</div>
-      <div class="drop-text">ou glissez-déposez le fichier ici</div>
+<!-- Modal de feedback d'import -->
+<div id="import-modal" class="modal hidden">
+  <div class="modal-backdrop"></div>
+  <div class="modal-card">
+    <div class="modal-header">
+      <h3 id="import-modal-title">Import en cours…</h3>
+      <button class="btn-close" id="import-modal-close" aria-label="Fermer">×</button>
     </div>
-
-    <div class="upload-note">
-      📌 <strong>Convention PAECT 2026</strong> — Branches : Auto · Incendie · Vélo · PJ<br>
-      📡 Les données sont sauvegardées et partagées avec toute l'équipe.
+    <div class="modal-body">
+      <ul id="import-file-list" class="file-list"></ul>
+      <div id="import-summary" class="import-summary hidden"></div>
     </div>
-
-    <div class="imported-months" id="importedMonths" style="display:none">
-      <div class="imported-months-title">Mois déjà importés :</div>
-      <div class="month-chips" id="monthChips"></div>
+    <div class="modal-footer">
+      <button class="btn btn-primary" id="import-done-btn">Terminer</button>
     </div>
   </div>
 </div>
 
-<!-- DASHBOARD -->
-<div class="main" id="dashboard" style="display:none">
+<div class="app">
 
-  <!-- TABS -->
-  <div class="view-tabs">
-    <button class="view-tab active" onclick="switchView('month')">📅 Vue Mensuelle</button>
-    <button class="view-tab" onclick="switchView('year')">📈 Vue Générale Année</button>
-  </div>
-
-  <!-- ═══════════ VUE MENSUELLE ═══════════ -->
-  <div class="month-view active" id="monthView">
-
-    <div class="month-selector">
-      <label>Mois :</label>
-      <select class="month-select" id="monthSelect" onchange="selectMonth(this.value)"></select>
-      <button class="delete-month-btn" id="deleteMonthBtn" onclick="deleteMonth(currentMonth)" title="Supprimer ce mois">Supprimer ce mois</button>
-    </div>
-
-    <div class="note-card" id="noteCard"></div>
-
-    <div class="kpi-grid">
-      <div class="kpi-card gold-accent">
-        <div class="kpi-label">Polices actives</div>
-        <div class="kpi-value" id="kpi-polices">—</div>
-        <div class="kpi-sub" id="kpi-polices-sub"></div>
-      </div>
-      <div class="kpi-card blue-accent">
-        <div class="kpi-label">Prime portefeuille</div>
-        <div class="kpi-value" id="kpi-portefeuille">—</div>
-        <div class="kpi-sub">Total primes HT actives</div>
-      </div>
-      <div class="kpi-card green-accent">
-        <div class="kpi-label">Prime production 2026</div>
-        <div class="kpi-value" id="kpi-production">—</div>
-        <div class="kpi-sub" id="kpi-production-sub">Nouvelles affaires 2026</div>
-      </div>
-      <div class="kpi-card orange-accent">
-        <div class="kpi-label">FDG projetés (équipe)</div>
-        <div class="kpi-value" id="kpi-fdg">—</div>
-        <div class="kpi-sub">Saisir S/P pour calculer</div>
-      </div>
-      <div class="kpi-card purple-accent">
-        <div class="kpi-label">Rythme annuel projeté</div>
-        <div class="kpi-value" id="kpi-rythme">—</div>
-        <div class="kpi-sub" id="kpi-rythme-sub"></div>
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <img src="assets/logo-dap.svg" alt="DAP">
+      <div>
+        DAP Solidarity
+        <span class="tagline">Convention Aedes</span>
       </div>
     </div>
 
-    <div class="branche-grid">
-      <div class="branche-card b-auto">
-        <div class="branche-name">Auto</div>
-        <div class="branche-count" id="b-auto-count">—</div>
-        <div class="branche-prime" id="b-auto-prime"></div>
-      </div>
-      <div class="branche-card b-incendie">
-        <div class="branche-name">Incendie</div>
-        <div class="branche-count" id="b-incendie-count">—</div>
-        <div class="branche-prime" id="b-incendie-prime"></div>
-      </div>
-      <div class="branche-card b-velo">
-        <div class="branche-name">Vélo</div>
-        <div class="branche-count" id="b-velo-count">—</div>
-        <div class="branche-prime" id="b-velo-prime"></div>
-      </div>
-      <div class="branche-card b-pj">
-        <div class="branche-name">Protection Juridique</div>
-        <div class="branche-count" id="b-pj-count">—</div>
-        <div class="branche-prime" id="b-pj-prime"></div>
+    <div class="nav-section">Pilotage</div>
+    <nav id="main-nav">
+      <a data-view="production" class="active">⬢ Production</a>
+      <a data-view="portefeuille">◎ Portefeuille</a>
+      <a data-view="historique">⇄ Historique</a>
+    </nav>
+
+    <div class="nav-section">Données
+      <span id="sidebar-snapshot-count" class="sidebar-count hidden"></span>
+    </div>
+    <button class="sidebar-primary-btn" id="btn-upload">
+      <span class="plus">+</span>
+      <span>Ajouter des fichiers</span>
+    </button>
+    <a id="btn-goto-snapshots" class="sidebar-link hidden">Gérer les snapshots</a>
+
+    <input type="file" id="file-input" accept=".xlsx,.xls" multiple style="display:none;">
+
+    <div class="sidebar-footer">
+      <button class="btn-reset-small" id="btn-reset">Réinitialiser les données</button>
+      <div style="margin-top: 10px;">
+        DAP Solidarity · 2026
       </div>
     </div>
+  </aside>
 
-    <!-- POINTS D'ATTENTION -->
-    <div class="alerts-grid" id="alertsGrid"></div>
+  <main class="content">
 
-    <!-- MEILLEURE PROGRESSION -->
-    <div class="progression-banner" id="progressionBanner" style="display:none"></div>
-
-    <!-- PALIER -->
-    <div class="palier-banner" id="palierBanner"></div>
-
-    <!-- S/P -->
-    <div class="controls-row">
-      <span class="sp-global-label">📊 Ratio S/P équipe :</span>
-      <input type="number" id="spGlobalInput" class="sp-input"
-        placeholder="ex: 38" min="0" max="100" step="1"
-        oninput="updateSPGlobal(this.value)">
-      <span class="sp-label">%</span>
-      <span class="sp-mult orange" id="spGlobalMult">—</span>
-      <span class="sp-global-hint">S/P collectif appliqué à tous les gestionnaires</span>
-    </div>
-
-    <!-- CLASSEMENT -->
-    <div class="card">
-      <div class="card-header">
-        <div class="card-title">🏆 Classement des gestionnaires</div>
-        <div class="card-sub">Score = Primes (40%) + Polices (30%) + Progression (30%)</div>
+    <div class="top-bar">
+      <div>
+        <h1 id="page-title">Convention Aedes</h1>
+        <div class="meta-line" id="meta-line">Aucune donnée chargée</div>
       </div>
-      <div class="table-wrap">
-        <table class="rank-table">
-          <thead>
-            <tr id="rankHead">
-              <th style="text-align:center; width:48px">#</th>
-              <th>Gestionnaire</th>
-              <th>Score</th>
-              <th>Production 2026</th>
-              <th>Portefeuille HT</th>
-              <th style="min-width:100px">Évolution</th>
-              <th style="min-width:130px">FDG projetés</th>
-              <th id="th-growth" style="display:none; min-width:120px">Croiss. N/N-1</th>
-              <th>Conditions</th>
-              <th style="width:40px"></th>
-            </tr>
-          </thead>
-          <tbody id="rankBody"></tbody>
-        </table>
-      </div>
-    </div>
-
-    <!-- CONVENTION -->
-    <div class="conv-card">
-      <div class="conv-title">📋 Rappel — Barèmes Convention PAECT 2026</div>
-      <div class="conv-grid">
-        <div class="conv-section">
-          <h4>Prime production (collective)</h4>
-          <div class="conv-row"><span>> 80.000 €</span><span class="conv-val">1% du portefeuille</span></div>
-          <div class="conv-row"><span>> 100.000 €</span><span class="conv-val">2% du portefeuille</span></div>
-          <div class="conv-row"><span>> 150.000 €</span><span class="conv-val">3% du portefeuille</span></div>
-        </div>
-        <div class="conv-section">
-          <h4>Croissance portefeuille</h4>
-          <div class="conv-row"><span>> 10%</span><span class="conv-val">+ 2% du portefeuille</span></div>
-          <div class="conv-row"><span>> 20%</span><span class="conv-val">+ 4% du portefeuille</span></div>
-          <div class="conv-row"><span>> 30%</span><span class="conv-val">+ 5% du portefeuille</span></div>
-        </div>
-        <div class="conv-section">
-          <h4>Multiplicateur S/P</h4>
-          <div class="conv-row"><span>S/P > 55%</span><span class="conv-val">× 0,25</span></div>
-          <div class="conv-row"><span>S/P < 55%</span><span class="conv-val">× 0,50</span></div>
-          <div class="conv-row"><span>S/P < 45%</span><span class="conv-val">× 1,00</span></div>
-          <div class="conv-row"><span>S/P < 35%</span><span class="conv-val">× 1,25</span></div>
-          <div class="conv-row"><span>S/P < 30%</span><span class="conv-val">× 1,50</span></div>
+      <div class="meta-right">
+        <div class="snapshot-selector">
+          <label for="year-select">Année</label>
+          <select id="year-select"></select>
         </div>
       </div>
     </div>
-  </div>
 
-  <!-- ═══════════ VUE ANNUELLE ═══════════ -->
-  <div class="year-view" id="yearView">
-
-    <div class="kpi-grid" id="yearKpiGrid"></div>
-
-    <div class="chart-card">
-      <div class="chart-title">📈 Production collective — Évolution mensuelle</div>
-      <div class="bar-chart" id="yearChart"></div>
+    <!-- État vide plein écran avec grosse drop zone -->
+    <div id="empty-state" class="empty-state-v2 hidden">
+      <div class="dropzone-big" id="dropzone-big">
+        <div class="dropzone-icon">📁</div>
+        <div class="dropzone-title">Glisse tes fichiers Excel ici</div>
+        <div class="dropzone-sub">ou <button class="btn-inline-link" id="btn-browse">parcourir depuis ton Mac</button></div>
+        <div class="dropzone-hint">
+          Fichiers attendus : <code>DAP SOLIDARITY - AAAA - JJ-MM.xlsx</code> (export Aedes mensuel)
+        </div>
+        <div class="dropzone-tip">
+          Sélectionne plusieurs fichiers en une fois si besoin — un snapshot sera créé par feuille.
+        </div>
+      </div>
     </div>
 
-    <div class="palier-banner" id="yearPalierBanner"></div>
+    <!-- Dashboard principal (3 vues) -->
+    <div id="dashboard" class="hidden">
 
-    <div class="card">
-      <div class="card-header">
-        <div class="card-title">🏆 Classement annuel cumulé</div>
-        <div class="card-sub">Score composite sur l'ensemble de l'année</div>
+    <!-- Bandeau compact pour ajouter des fichiers (commun aux 3 vues) -->
+    <div class="dropzone-mini" id="dropzone-mini">
+      <span class="dropzone-mini-text">📎 Glisse un nouveau fichier Aedes ici, ou clique pour parcourir</span>
+    </div>
+
+    <!-- Bandeau fiabilité (commun, visible uniquement en vue Production) -->
+    <div id="reliability-banner" class="banner-v2 hidden"></div>
+
+    <!-- VUE PRODUCTION -->
+    <div class="view" data-view="production">
+
+      <!-- Row 1 : 3 KPIs héros -->
+      <div class="kpi-row">
+        <div class="card kpi" id="kpi-production"></div>
+        <div class="card kpi" id="kpi-croissance"></div>
+        <div class="card kpi" id="kpi-fdg"></div>
       </div>
-      <div class="table-wrap">
-        <table class="rank-table">
+
+      <!-- Row 2 : courbe + donut -->
+      <div class="row-2">
+        <div class="card">
+          <h2>Production cumulée mensuelle <span class="hint">année en cours vs précédente</span></h2>
+          <canvas id="chart-line"></canvas>
+        </div>
+        <div class="card">
+          <h2>Mix des branches <span class="hint">production YTD</span></h2>
+          <canvas id="chart-donut"></canvas>
+          <div class="donut-legend" id="donut-legend"></div>
+        </div>
+      </div>
+
+      <!-- Panneau Override (valeurs officielles convention) -->
+      <div class="card mb-24">
+        <h2>Valeurs officielles de la convention <span class="hint">chiffres communiqués mensuellement par Aedes</span></h2>
+
+        <!-- Ligne 1 : mensuels -->
+        <div style="font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--gray-500); font-weight: 600; margin-bottom: 8px;">
+          Chiffres mensuels
+        </div>
+        <div class="override-grid mb-16">
+          <div>
+            <label>Prime Production (€)</label>
+            <input type="number" id="ovr-prod" step="0.01" placeholder="ex : 17598">
+          </div>
+          <div>
+            <label>Croissance Portefeuille (%)</label>
+            <input type="number" id="ovr-crois" step="0.01" placeholder="ex : 2.7">
+          </div>
+          <div>
+            <label>Prime Portefeuille actuel (€) <span style="font-weight:400; color:var(--gray-400);">— optionnel</span></label>
+            <input type="number" id="ovr-port" step="0.01" placeholder="laisse vide si calcul auto">
+          </div>
+          <button class="btn btn-ghost btn-small" id="btn-clear-overrides">Effacer</button>
+        </div>
+
+        <!-- Ligne 2 : référence annuelle -->
+        <div style="font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--gray-500); font-weight: 600; margin: 20px 0 8px;">
+          Référence annuelle
+        </div>
+        <div style="max-width: 300px;">
+          <label style="display:block; font-size: 12px; color: var(--gray-500); margin-bottom: 4px; font-weight: 500;">
+            Prime Portefeuille 31/12 N-1 (€)
+          </label>
+          <input type="number" id="ovr-port-n1" step="0.01" placeholder="ex : 1000000"
+            style="width:100%; padding: 8px 12px; border: 1px solid var(--gray-200); border-radius: 6px; font-size: 14px; font-family: inherit;">
+        </div>
+
+        <div id="portefeuille-computed" class="hidden" style="margin-top: 16px; padding: 12px 16px; background: var(--blue-soft); border-radius: 8px; font-size: 13px;">
+          <b style="color: var(--blue);">Portefeuille actuel calculé :</b>
+          <span id="portefeuille-computed-value" style="font-family: 'SF Mono', Menlo, monospace; font-weight: 600;"></span>
+          <div style="color: var(--gray-600); font-size: 11px; margin-top: 2px;">
+            = <span id="portefeuille-n1-display"></span> × (1 + <span id="croissance-display"></span> / 100)
+          </div>
+        </div>
+      </div>
+
+      <!-- Simulateur FDG -->
+      <div class="card mb-24">
+        <h2>Simulateur FDG <span class="hint">si les paliers sont atteints au 31/12</span></h2>
+        <div id="simulations"></div>
+      </div>
+
+      <!-- Classement gestionnaires -->
+      <div class="card">
+        <h2>Classement des gestionnaires <span class="hint">contribution à la Production et au Portefeuille</span></h2>
+        <table class="pro">
           <thead>
             <tr>
-              <th style="text-align:center; width:48px">#</th>
               <th>Gestionnaire</th>
-              <th>Score</th>
-              <th>Production totale</th>
-              <th>Polices</th>
+              <th class="num">Production YTD</th>
+              <th class="num">% Prod</th>
               <th>Progression</th>
+              <th class="num">Portefeuille</th>
+              <th class="num">% Porte.</th>
             </tr>
           </thead>
-          <tbody id="yearRankBody"></tbody>
+          <tbody id="classement-body"></tbody>
         </table>
       </div>
-    </div>
-  </div>
 
+    </div>
+    <!-- FIN VUE PRODUCTION -->
+
+    <!-- VUE PORTEFEUILLE -->
+    <div class="view hidden" data-view="portefeuille">
+
+      <!-- Résumé portefeuille -->
+      <div class="kpi-row">
+        <div class="card kpi" id="pf-stat-polices">
+          <div class="label">Polices actives</div>
+          <div class="value" id="pf-polices-count">—</div>
+          <div class="delta flat" id="pf-polices-sub">—</div>
+        </div>
+        <div class="card kpi" id="pf-stat-prime">
+          <div class="label">Prime Portefeuille</div>
+          <div class="value" id="pf-prime-value">—</div>
+          <div class="delta flat" id="pf-prime-sub">—</div>
+        </div>
+        <div class="card kpi" id="pf-stat-na">
+          <div class="label">Nouvelles affaires <span id="pf-na-year">—</span></div>
+          <div class="value" id="pf-na-count">—</div>
+          <div class="delta flat" id="pf-na-sub">—</div>
+        </div>
+      </div>
+
+      <!-- Répartition par branche + top compagnies -->
+      <div class="row-2 mb-24">
+        <div class="card">
+          <h2>Ventilation par branche <span class="hint">polices actives · Prime HT</span></h2>
+          <canvas id="pf-chart-branches"></canvas>
+          <div class="donut-legend" id="pf-branches-legend"></div>
+        </div>
+        <div class="card">
+          <h2>Top clients <span class="hint">plus grosses primes actives</span></h2>
+          <div id="pf-top-clients"></div>
+        </div>
+      </div>
+
+      <!-- Filtres + tableau complet -->
+      <div class="card">
+        <h2>Toutes les polices actives <span class="hint" id="pf-count-hint">—</span></h2>
+        <div class="filters-bar">
+          <input type="search" id="pf-search" placeholder="Rechercher un preneur, n° contrat, gestionnaire..." class="filter-input">
+          <select id="pf-filter-branche" class="filter-select"><option value="">Toutes les branches</option></select>
+          <select id="pf-filter-gestionnaire" class="filter-select"><option value="">Tous les gestionnaires</option></select>
+          <select id="pf-filter-type" class="filter-select">
+            <option value="">NA + Renouvellements</option>
+            <option value="NA">Nouvelles affaires uniquement</option>
+            <option value="RN">Renouvellements uniquement</option>
+          </select>
+          <button class="btn btn-secondary btn-small" id="pf-export-btn">⬇ Export CSV</button>
+        </div>
+        <div class="table-scroll">
+          <table class="pro">
+            <thead>
+              <tr>
+                <th>Preneur</th>
+                <th>N° contrat</th>
+                <th>Produit</th>
+                <th>Branche</th>
+                <th>Source</th>
+                <th>Date souscription</th>
+                <th class="num">Prime HT</th>
+                <th>Gestionnaire</th>
+                <th>État</th>
+              </tr>
+            </thead>
+            <tbody id="pf-polices-body"></tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+    <!-- FIN VUE PORTEFEUILLE -->
+
+    <!-- VUE HISTORIQUE -->
+    <div class="view hidden" data-view="historique">
+
+      <!-- Résumé historique -->
+      <div class="kpi-row">
+        <div class="card kpi">
+          <div class="label">Snapshots importés</div>
+          <div class="value" id="hist-count">—</div>
+          <div class="delta flat" id="hist-range">—</div>
+        </div>
+        <div class="card kpi">
+          <div class="label">Années couvertes</div>
+          <div class="value" id="hist-years">—</div>
+          <div class="delta flat">Feuilles de production + renouvellement</div>
+        </div>
+        <div class="card kpi">
+          <div class="label">Polices uniques cumulées</div>
+          <div class="value" id="hist-unique">—</div>
+          <div class="delta flat">Dédoublonnées par n° contrat</div>
+        </div>
+      </div>
+
+      <!-- Évolution annuelle -->
+      <div class="card mb-24">
+        <h2>Évolution annuelle <span class="hint">production par année · polices et Prime HT</span></h2>
+        <canvas id="hist-chart-yearly"></canvas>
+      </div>
+
+      <!-- Comparateur 2 snapshots -->
+      <div class="card mb-24">
+        <h2>Comparateur de snapshots <span class="hint">delta entre 2 photos de portefeuille</span></h2>
+        <div style="display: grid; grid-template-columns: 1fr auto 1fr; gap: 16px; align-items: end; margin-bottom: 20px;">
+          <div>
+            <label style="display:block; font-size: 12px; color: var(--gray-500); margin-bottom: 4px;">Snapshot A (référence)</label>
+            <select id="hist-comp-a" class="filter-select" style="width:100%;"></select>
+          </div>
+          <div style="padding-bottom: 8px; font-size: 20px; color: var(--gray-400);">→</div>
+          <div>
+            <label style="display:block; font-size: 12px; color: var(--gray-500); margin-bottom: 4px;">Snapshot B (comparaison)</label>
+            <select id="hist-comp-b" class="filter-select" style="width:100%;"></select>
+          </div>
+        </div>
+        <div id="hist-comp-result"></div>
+      </div>
+
+      <!-- Timeline complète des snapshots -->
+      <div class="card">
+        <h2>Tous les snapshots chargés <span class="hint">groupés par année · tri chronologique</span></h2>
+        <div id="hist-timeline"></div>
+      </div>
+
+    </div>
+    <!-- FIN VUE HISTORIQUE -->
+
+    </div>
+    <!-- FIN dashboard -->
+
+  </main>
 </div>
 
-<script>
-// ── WEBHOOKS ──────────────────────────────────────────────────────────────
-const WEBHOOK_POST = 'https://n8n.srv1387885.hstgr.cloud/webhook/dap-solidarity-data';
-const WEBHOOK_GET  = 'https://n8n.srv1387885.hstgr.cloud/webhook/dap-solidarity-data';
-
-// ── STATE ──────────────────────────────────────────────────────────────────
-let allMonths = {};     // monthKey → { label, gestionnaires, rawRows, totalProd, totalPortef, totalPolices, branches }
-let currentMonth = '';  // key du mois sélectionné
-let gestMap = {};       // gestionnaire map pour le mois courant
-let rawRows = [];       // lignes brutes du mois courant
-let refMap  = {};       // name → primePortefeuille 31/12/2025
-let spGlobalValue = '';
-
-// ── UTILS ──────────────────────────────────────────────────────────────────
-const fmt = n => new Intl.NumberFormat('fr-BE', { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(n);
-const fmtEur = n => fmt(n) + ' €';
-const MONTH_NAMES = ['Janvier','Février','Mars','Avril','Mai','Juin','Juillet','Août','Septembre','Octobre','Novembre','Décembre'];
-
-function detectMonthKey(filename, sheetNames) {
-  // Format attendu: "DAP SOLIDARITY - 2026 - DD-MM.xlsx" (format belge jour-mois)
-  const m3 = filename.match(/(\d{4})\s*-\s*(\d{2})\s*-\s*(\d{2})/);
-  if (m3) return m3[1] + '-' + m3[3]; // m3[3] = mois (2e nombre après l'année)
-  // Fallback: "2026 - 03" (juste année-mois)
-  const m = filename.match(/(\d{4})\s*-\s*(\d{2})$/);
-  if (m) return m[1] + '-' + m[2];
-  // Essayer depuis le nom de l'onglet
-  for (const sn of sheetNames) {
-    const m2 = sn.match(/(\d{4})/);
-    if (m2) {
-      const now = new Date();
-      const monthNum = String(now.getMonth() + 1).padStart(2, '0');
-      return m2[1] + '-' + monthNum;
+<script type="module">
+  // Cache-buster : force le reload des modules ES6 à chaque session
+  const v = Date.now();
+  const { initUI } = await import(`./src/ui.js?v=${v}`);
+  function ready() {
+    if (typeof XLSX === 'undefined' || typeof Chart === 'undefined') {
+      return setTimeout(ready, 50);
     }
+    initUI();
   }
-  return new Date().getFullYear() + '-' + String(new Date().getMonth() + 1).padStart(2, '0');
-}
-
-function monthLabel(key) {
-  const parts = key.split('-');
-  const monthIdx = parseInt(parts[1]) - 1;
-  return (MONTH_NAMES[monthIdx] || parts[1]) + ' ' + parts[0];
-}
-
-function excelDateToYear(v) {
-  if (!v) return null;
-  if (typeof v === 'number') {
-    const d = new Date(Math.round((v - 25569) * 86400 * 1000));
-    return isNaN(d) ? null : d.getFullYear();
-  }
-  if (typeof v === 'string') {
-    const m = v.match(/(\d{4})-(\d{2})/);
-    if (m) return parseInt(m[1]);
-    const m2 = v.match(/(\d{2})\/(\d{2})\/(\d{4})/);
-    if (m2) return parseInt(m2[3]);
-    const d = new Date(v);
-    return isNaN(d) ? null : d.getFullYear();
-  }
-  return null;
-}
-
-function isActive(etat) {
-  if (!etat) return true;
-  const e = String(etat).toLowerCase();
-  return !e.includes('résiliation') && !e.includes('resiliation') &&
-         !e.includes('mise sans suite') && !e.includes('suspension');
-}
-
-const BRANCH_LABEL = { auto: 'Auto', incendie: 'Incendie', velo: 'Vélo', pj: 'PJ', autre: 'Autre' };
-const BRANCH_BG    = { auto: '#dbeafe', incendie: '#fef3c7', velo: '#d1fae5', pj: '#ede9fe', autre: '#f3f4f6' };
-const BRANCH_COLOR = { auto: '#1d4ed8', incendie: '#92400e', velo: '#065f46', pj: '#5b21b6', autre: '#374151' };
-
-function getBranche(produit) {
-  if (!produit) return 'autre';
-  const p = String(produit).trim();
-  if (p === 'PJ Auto' || /^PJ\s/i.test(p) || p.toUpperCase() === 'PJ') return 'pj';
-  if (/^v[ée]lo$/i.test(p)) return 'velo';
-  if (['P.LiZ', 'P-Home', 'PAC-AEDES'].includes(p)) return 'incendie';
-  if (/^(P\d+|Auto\s*-\s*P\d+)$/i.test(p) || p === 'Oldtimer' || p === 'CARES') return 'auto';
-  return 'autre';
-}
-
-// ── CONVENTION LOGIC ──────────────────────────────────────────────────────
-function getProdPalier(prod) {
-  if (prod > 150000) return { rate: 0.03, pct: 3, label: 'Palier 3%', cls: 'palier-3' };
-  if (prod > 100000) return { rate: 0.02, pct: 2, label: 'Palier 2%', cls: 'palier-2' };
-  if (prod >  80000) return { rate: 0.01, pct: 1, label: 'Palier 1%', cls: 'palier-1' };
-  return { rate: 0, pct: 0, label: 'Aucun palier', cls: 'palier-0' };
-}
-
-function getSPInfo(spVal) {
-  if (spVal === '' || spVal === null || spVal === undefined) return { mult: null, label: '—', cls: 'orange' };
-  const v = parseFloat(spVal) / 100;
-  if (isNaN(v)) return { mult: null, label: '—', cls: 'orange' };
-  if (v < 0.30) return { mult: 1.50, label: '× 1,50', cls: 'green' };
-  if (v < 0.35) return { mult: 1.25, label: '× 1,25', cls: 'green' };
-  if (v < 0.45) return { mult: 1.00, label: '× 1,00', cls: 'green' };
-  if (v < 0.55) return { mult: 0.50, label: '× 0,50', cls: 'orange' };
-  return { mult: 0.25, label: '× 0,25', cls: 'red' };
-}
-
-function calcFDG(g) {
-  const totalProd = Object.values(gestMap).reduce((s, x) => s + x.primeProduction, 0);
-  const palier = getProdPalier(totalProd);
-  const sp = getSPInfo(spGlobalValue);
-  if (palier.rate === 0 || sp.mult === null) return null;
-  return palier.rate * sp.mult * g.primePortefeuille;
-}
-
-function checkConditions(g) {
-  const w = [];
-  if (g.primePortefeuille < 75000) w.push('Portef. < 75k€');
-  if (g.primeProduction < 20000)   w.push('Prod. < 20k€');
-  return w;
-}
-
-// Score composite : primes 40%, polices 30%, progression 30%
-function calcScores(sorted, prevGestMap) {
-  if (!sorted.length) return [];
-  const maxPrime = Math.max(...sorted.map(g => g.primeProduction), 1);
-  const maxPolices = Math.max(...sorted.map(g => g.polices.filter(p => p.active).length), 1);
-
-  return sorted.map(g => {
-    const primeScore = (g.primeProduction / maxPrime) * 40;
-    const policeScore = (g.polices.filter(p => p.active).length / maxPolices) * 30;
-    let progScore = 15; // default mid si pas de précédent
-    if (prevGestMap) {
-      const prev = prevGestMap[g.name];
-      if (prev && prev.primeProduction > 0) {
-        const growth = (g.primeProduction - prev.primeProduction) / prev.primeProduction;
-        progScore = Math.max(0, Math.min(30, 15 + growth * 30));
-      } else if (!prev) {
-        progScore = 20; // nouveau = bonus
-      }
-    }
-    return { ...g, score: Math.round(primeScore + policeScore + progScore) };
-  });
-}
-
-// ── INIT — charger données partagées ──────────────────────────────────────
-async function init() {
-  try {
-    const res = await fetch(WEBHOOK_GET);
-    const data = await res.json();
-    if (data && data.months) {
-      // Filtrer les entrées invalides (null, sans gestionnaires, clés techniques)
-      const validMonths = {};
-      for (const [k, v] of Object.entries(data.months)) {
-        if (v && typeof v === 'object' && v.gestionnaires && /^\d{4}-\d{2}$/.test(k)) {
-          validMonths[k] = v;
-        }
-      }
-      if (Object.keys(validMonths).length > 0) {
-        allMonths = validMonths;
-        showImportedMonths();
-        const keys = Object.keys(allMonths).sort();
-        selectMonthAndShow(keys[keys.length - 1]);
-      }
-    }
-  } catch(e) {
-    // Pas de données, rester sur l'upload
-  }
-}
-init();
-
-function showImportedMonths() {
-  const keys = Object.keys(allMonths).sort();
-  if (keys.length === 0) return;
-  document.getElementById('importedMonths').style.display = 'block';
-  document.getElementById('monthChips').innerHTML = keys.map(k =>
-    `<span class="month-chip">✓ ${monthLabel(k)}<button class="month-chip-delete" onclick="deleteMonth('${k}')" title="Supprimer ce mois">✕</button></span>`
-  ).join('');
-}
-
-async function deleteMonth(monthKey) {
-  if (!confirm(`Supprimer les données de "${monthLabel(monthKey)}" ?`)) return;
-  delete allMonths[monthKey];
-  // Sauvegarder la suppression côté serveur
-  try {
-    await fetch(WEBHOOK_POST, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ deleteMonth: monthKey })
-    });
-  } catch(e) { /* silencieux */ }
-  const keys = Object.keys(allMonths).sort();
-  if (keys.length > 0) {
-    showImportedMonths();
-    selectMonthAndShow(keys[keys.length - 1]);
-  } else {
-    // Plus aucun mois : réinitialiser l'interface
-    document.getElementById('importedMonths').style.display = 'none';
-    document.getElementById('monthChips').innerHTML = '';
-    document.getElementById('dashboard').style.display = 'none';
-    document.getElementById('addMonthBtn').style.display = 'none';
-    document.getElementById('dropZone').style.display = '';
-  }
-}
-
-// ── DRAG & DROP ───────────────────────────────────────────────────────────
-const dropZone = document.getElementById('dropZone');
-dropZone.addEventListener('dragover',  e => { e.preventDefault(); dropZone.classList.add('drag-over'); });
-dropZone.addEventListener('dragleave', () => dropZone.classList.remove('drag-over'));
-dropZone.addEventListener('drop', e => {
-  e.preventDefault();
-  dropZone.classList.remove('drag-over');
-  if (e.dataTransfer.files[0]) handleFile(e.dataTransfer.files[0]);
-});
-
-// ── FILE HANDLERS ─────────────────────────────────────────────────────────
-function handleFile(file) {
-  if (!file) return;
-  const reader = new FileReader();
-  reader.onload = e => {
-    try {
-      const data = new Uint8Array(e.target.result);
-      const wb = XLSX.read(data, { type: 'array', cellDates: false });
-      const monthKey = detectMonthKey(file.name, wb.SheetNames);
-
-      // Vérifier si le mois existe déjà
-      if (allMonths[monthKey] && !confirm(`Le mois "${monthLabel(monthKey)}" existe déjà. Remplacer les données ?`)) return;
-
-      const ws = wb.Sheets[wb.SheetNames[0]];
-      rawRows = XLSX.utils.sheet_to_json(ws, { header: 1, defval: '' });
-
-      const monthData = processDataForMonth(rawRows, monthKey);
-      allMonths[monthKey] = monthData;
-
-      // Sauvegarder sur OneDrive
-      saveToCloud(monthKey, monthData);
-
-      selectMonthAndShow(monthKey);
-    } catch(err) {
-      alert('Erreur : ' + err.message);
-    }
-  };
-  reader.readAsArrayBuffer(file);
-}
-
-function handleRefFile(file) {
-  if (!file) return;
-  const reader = new FileReader();
-  reader.onload = e => {
-    try {
-      const data = new Uint8Array(e.target.result);
-      const wb = XLSX.read(data, { type: 'array', cellDates: false });
-      const ws = wb.Sheets[wb.SheetNames[0]];
-      const rows = XLSX.utils.sheet_to_json(ws, { header: 1, defval: '' });
-      processRefData(rows);
-      const btn = document.getElementById('refBtn');
-      btn.classList.add('loaded');
-      btn.childNodes[0].textContent = '✓ Réf. 2025 ';
-      document.getElementById('th-growth').style.display = '';
-      renderRanking(getSorted());
-    } catch(err) {
-      alert('Erreur réf. : ' + err.message);
-    }
-  };
-  reader.readAsArrayBuffer(file);
-}
-
-async function saveToCloud(monthKey, monthData) {
-  try {
-    await fetch(WEBHOOK_POST, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ monthKey, monthData })
-    });
-  } catch(e) { /* silencieux */ }
-}
-
-// ── PROCESS ───────────────────────────────────────────────────────────────
-function processDataForMonth(rows, monthKey) {
-  const gMap = {};
-  const branches = { auto: {c:0,p:0}, incendie: {c:0,p:0}, velo: {c:0,p:0}, pj: {c:0,p:0} };
-
-  rows.slice(1).forEach(row => {
-    if (!row[0] && !row[2] && !row[11]) return;
-
-    const preneur  = String(row[0]  || '').trim();
-    const produit  = String(row[3]  || '').trim();
-    const dateSosc = row[4];
-    const primeHT  = parseFloat(row[6]) || 0;
-    const etat     = String(row[9]  || '').trim();
-    const contact  = String(row[11] || '').trim() || 'Non assigné';
-    const site     = String(row[12] || '').trim();
-
-    if (!gMap[contact]) {
-      gMap[contact] = {
-        name: contact, site,
-        polices: [],
-        primePortefeuille: 0,
-        primeProduction: 0,
-        branchCount: { auto: 0, incendie: 0, velo: 0, pj: 0, autre: 0 }
-      };
-    }
-
-    const g       = gMap[contact];
-    const active  = isActive(etat);
-    const branche = getBranche(produit);
-    const annee   = excelDateToYear(dateSosc);
-
-    g.polices.push({ preneur, produit, branche, annee, primeHT, etat, active });
-
-    if (active) {
-      g.primePortefeuille += primeHT;
-      g.branchCount[branche]++;
-      if (branches[branche]) { branches[branche].c++; branches[branche].p += primeHT; }
-    }
-    if (active && annee === 2026) {
-      g.primeProduction += primeHT;
-    }
-  });
-
-  const sorted = Object.values(gMap).sort((a, b) => b.primeProduction - a.primeProduction || b.primePortefeuille - a.primePortefeuille);
-  const totalProd = sorted.reduce((s, g) => s + g.primeProduction, 0);
-  const totalPortef = sorted.reduce((s, g) => s + g.primePortefeuille, 0);
-  const totalPolices = sorted.reduce((s, g) => s + g.polices.filter(p => p.active).length, 0);
-
-  return {
-    label: monthLabel(monthKey),
-    gestionnaires: gMap,
-    totalProd, totalPortef, totalPolices, branches,
-    date: new Date().toISOString()
-  };
-}
-
-function processRefData(rows) {
-  refMap = {};
-  rows.slice(1).forEach(row => {
-    if (!row[11]) return;
-    const contact = String(row[11] || '').trim();
-    const primeHT = parseFloat(row[6]) || 0;
-    const etat    = String(row[9]  || '').trim();
-    if (!contact || !isActive(etat)) return;
-    refMap[contact] = (refMap[contact] || 0) + primeHT;
-  });
-}
-
-// ── NAVIGATION ───────────────────────────────────────────────────────────
-function selectMonthAndShow(monthKey) {
-  currentMonth = monthKey;
-
-  // Populate month selector
-  const select = document.getElementById('monthSelect');
-  const keys = Object.keys(allMonths).sort();
-  select.innerHTML = keys.map(k =>
-    `<option value="${k}" ${k === monthKey ? 'selected' : ''}>${monthLabel(k)}</option>`
-  ).join('');
-
-  // Load month data into gestMap + rawRows
-  const md = allMonths[monthKey];
-  gestMap = md.gestionnaires;
-  rawRows = []; // pas besoin pour le rendu
-
-  // Show dashboard
-  document.getElementById('uploadSection').style.display = 'none';
-  document.getElementById('dashboard').style.display = 'block';
-  document.getElementById('addMonthBtn').style.display = 'block';
-  document.getElementById('refBtn').style.display = 'block';
-  document.getElementById('fileInfo').textContent = `📅 ${md.label}`;
-  document.getElementById('addMonthInput').value = '';
-
-  renderMonth();
-}
-
-function selectMonth(monthKey) {
-  currentMonth = monthKey;
-  const md = allMonths[monthKey];
-  gestMap = md.gestionnaires;
-  document.getElementById('fileInfo').textContent = `📅 ${md.label}`;
-  renderMonth();
-}
-
-function switchView(view) {
-  document.querySelectorAll('.view-tab').forEach(t => t.classList.remove('active'));
-  document.getElementById('monthView').classList.remove('active');
-  document.getElementById('yearView').classList.remove('active');
-
-  if (view === 'month') {
-    document.querySelector('.view-tab:first-child').classList.add('active');
-    document.getElementById('monthView').classList.add('active');
-  } else {
-    document.querySelector('.view-tab:last-child').classList.add('active');
-    document.getElementById('yearView').classList.add('active');
-    renderYearView();
-  }
-}
-
-// ── RENDER MONTH ──────────────────────────────────────────────────────────
-function renderMonth() {
-  const sorted = getSorted();
-  const md = allMonths[currentMonth];
-
-  renderNote(md, sorted);
-  renderKPIs(sorted, md);
-  renderBranches(md);
-  renderAlerts(sorted, md);
-  renderProgressionBanner(sorted);
-  renderPalierBanner();
-  renderRanking(sorted);
-}
-
-function getSorted() {
-  return Object.values(gestMap).sort((a, b) => {
-    if (b.primeProduction !== a.primeProduction) return b.primeProduction - a.primeProduction;
-    return b.primePortefeuille - a.primePortefeuille;
-  });
-}
-
-function getPrevMonth() {
-  const keys = Object.keys(allMonths).sort();
-  const idx = keys.indexOf(currentMonth);
-  return idx > 0 ? allMonths[keys[idx - 1]] : null;
-}
-
-function renderNote(md, sorted) {
-  const hasRef = Object.keys(refMap).length > 0;
-  const keysCount = Object.keys(allMonths).length;
-  let msg = `<strong>📅 ${md.label}</strong> — ${sorted.length} gestionnaire${sorted.length > 1 ? 's' : ''} · ${keysCount} mois importé${keysCount > 1 ? 's' : ''} · Paliers collectifs`;
-  if (hasRef) msg += ' · ✓ Réf. 2025 chargée';
-  document.getElementById('noteCard').innerHTML = msg;
-}
-
-function renderKPIs(sorted, md) {
-  const totalActives = md.totalPolices;
-  const totalPortef  = md.totalPortef;
-  const totalProd    = md.totalProd;
-  const fdgValues    = sorted.map(g => calcFDG(g)).filter(v => v !== null);
-  const totalFDG     = fdgValues.length ? fdgValues.reduce((s, v) => s + v, 0) : null;
-
-  document.getElementById('kpi-polices').textContent = totalActives;
-  document.getElementById('kpi-polices-sub').textContent = `polices actives`;
-  document.getElementById('kpi-portefeuille').textContent = fmtEur(totalPortef);
-  document.getElementById('kpi-production').textContent = fmtEur(totalProd);
-  document.getElementById('kpi-fdg').textContent = totalFDG !== null ? fmtEur(totalFDG) : '—';
-
-  // Rythme projeté
-  const monthIdx = parseInt(currentMonth.split('-')[1]);
-  if (monthIdx > 0) {
-    const projected = totalProd * (12 / monthIdx);
-    const projPalier = getProdPalier(projected);
-    document.getElementById('kpi-rythme').textContent = fmtEur(projected);
-    document.getElementById('kpi-rythme-sub').textContent = `${monthIdx}/12 mois → ${projPalier.label}`;
-  }
-
-  // Delta vs mois précédent
-  const prev = getPrevMonth();
-  if (prev) {
-    const delta = totalProd - prev.totalProd;
-    const sign = delta >= 0 ? '+' : '';
-    document.getElementById('kpi-production-sub').innerHTML =
-      `Nouvelles affaires 2026 <span class="kpi-delta ${delta >= 0 ? 'up' : 'down'}">${sign}${fmtEur(delta)} vs mois préc.</span>`;
-  }
-}
-
-function renderBranches(md) {
-  const b = md.branches || { auto: {c:0,p:0}, incendie: {c:0,p:0}, velo: {c:0,p:0}, pj: {c:0,p:0} };
-  for (const [key, data] of Object.entries(b)) {
-    const countEl = document.getElementById(`b-${key}-count`);
-    const primeEl = document.getElementById(`b-${key}-prime`);
-    if (countEl) countEl.textContent = data.c;
-    if (primeEl) primeEl.textContent = fmtEur(data.p);
-  }
-}
-
-function renderAlerts(sorted, md) {
-  const alerts = [];
-  const totalProd = md.totalProd;
-  const monthIdx = parseInt(currentMonth.split('-')[1]);
-
-  // Gestionnaires sous seuils
-  const underThreshold = sorted.filter(g => g.primePortefeuille < 75000 || g.primeProduction < 20000);
-  if (underThreshold.length > 0) {
-    alerts.push({
-      type: underThreshold.length > sorted.length / 2 ? 'danger' : 'warn',
-      title: 'Sous les seuils PAECT',
-      value: underThreshold.length,
-      sub: `gestionnaire${underThreshold.length > 1 ? 's' : ''} ne rempliss${underThreshold.length > 1 ? 'ent' : 'e'} pas les conditions`,
-      detail: underThreshold.map(g => {
-        const w = checkConditions(g);
-        return `<li><strong>${g.name}</strong> — ${w.join(', ')}</li>`;
-      }).join('')
-    });
-  }
-
-  // Rythme de production
-  if (monthIdx > 0) {
-    const projected = totalProd * (12 / monthIdx);
-    const projPalier = getProdPalier(projected);
-    const type = projPalier.pct >= 2 ? 'success' : projPalier.pct === 1 ? 'warn' : 'danger';
-    alerts.push({
-      type,
-      title: 'Rythme annuel projeté',
-      value: fmtEur(projected),
-      sub: projPalier.pct > 0 ? `Objectif ${projPalier.label} atteignable` : `Palier 1% (80k€) nécessite ${fmtEur(80000 - totalProd)} de plus`,
-      detail: ''
-    });
-  }
-
-  // Gestionnaires en baisse
-  const prev = getPrevMonth();
-  if (prev) {
-    const declining = sorted.filter(g => {
-      const prevG = prev.gestionnaires[g.name];
-      return prevG && g.primeProduction < prevG.primeProduction;
-    });
-    if (declining.length > 0) {
-      alerts.push({
-        type: 'warn',
-        title: 'En baisse vs mois précédent',
-        value: declining.length,
-        sub: `gestionnaire${declining.length > 1 ? 's' : ''} avec production en recul`,
-        detail: declining.map(g => {
-          const prevG = prev.gestionnaires[g.name];
-          const delta = g.primeProduction - prevG.primeProduction;
-          return `<li><strong>${g.name}</strong> — ${fmtEur(delta)}</li>`;
-        }).join('')
-      });
-    }
-  }
-
-  const grid = document.getElementById('alertsGrid');
-  grid.innerHTML = alerts.map((a, i) => `
-    <div class="alert-card ${a.type}" onclick="this.querySelector('.alert-detail').classList.toggle('open')">
-      <div class="alert-header">
-        <span class="alert-title">${a.type === 'danger' ? '🔴' : a.type === 'warn' ? '🟡' : '🟢'} ${a.title}</span>
-      </div>
-      <div class="alert-value">${a.value}</div>
-      <div class="alert-sub">${a.sub}</div>
-      ${a.detail ? `<div class="alert-detail"><ul>${a.detail}</ul></div>` : ''}
-    </div>
-  `).join('');
-}
-
-function renderProgressionBanner(sorted) {
-  const prev = getPrevMonth();
-  const banner = document.getElementById('progressionBanner');
-  if (!prev) { banner.style.display = 'none'; return; }
-
-  let bestName = '', bestDelta = -Infinity;
-  sorted.forEach(g => {
-    const prevG = prev.gestionnaires[g.name];
-    if (prevG) {
-      const delta = g.primeProduction - prevG.primeProduction;
-      if (delta > bestDelta) { bestDelta = delta; bestName = g.name; }
-    } else if (g.primeProduction > bestDelta) {
-      bestDelta = g.primeProduction; bestName = g.name;
-    }
-  });
-
-  if (bestDelta > 0 && bestName) {
-    banner.style.display = 'flex';
-    banner.innerHTML = `
-      <div class="progression-banner-left">
-        <div class="progression-trophy">🏆</div>
-        <div class="progression-text">
-          <div class="progression-label">Meilleure progression du mois</div>
-          <div class="progression-name">${bestName}</div>
-        </div>
-      </div>
-      <div class="progression-stat">+${fmtEur(bestDelta)}</div>
-    `;
-  } else {
-    banner.style.display = 'none';
-  }
-}
-
-function renderPalierBanner() {
-  const totalProd = Object.values(gestMap).reduce((s, x) => s + x.primeProduction, 0);
-  const palier = getProdPalier(totalProd);
-  const MAX = 150000;
-  const pct = Math.min(100, totalProd / MAX * 100);
-  const barColor = palier.cls === 'palier-0' ? '#9ca3af'
-                 : palier.cls === 'palier-1' ? '#f59e0b'
-                 : palier.cls === 'palier-2' ? '#3b82f6' : '#10b981';
-
-  const milestones = [
-    { val: 80000,  label: '80 k€',  pct: 80000/MAX*100,  tier: 'Palier 1%' },
-    { val: 100000, label: '100 k€', pct: 100000/MAX*100, tier: 'Palier 2%' },
-    { val: 150000, label: '150 k€', pct: 100,            tier: 'Palier 3%' },
-  ];
-
-  let nextText;
-  if (totalProd <= 80000) nextText = `encore <strong>${fmtEur(80000 - totalProd)}</strong> pour le Palier 1%`;
-  else if (totalProd <= 100000) nextText = `encore <strong>${fmtEur(100000 - totalProd)}</strong> pour le Palier 2%`;
-  else if (totalProd <= 150000) nextText = `encore <strong>${fmtEur(150000 - totalProd)}</strong> pour le Palier 3%`;
-  else nextText = '✓ Palier maximum atteint';
-
-  // Projection
-  const monthIdx = parseInt(currentMonth.split('-')[1]) || 1;
-  const projected = totalProd * (12 / monthIdx);
-  const projPct = Math.min(100, projected / MAX * 100);
-
-  const milestonesHTML = milestones.map(m =>
-    `<div class="bar-milestone" style="left:${m.pct}%"></div>
-     <div class="bar-milestone-label" style="left:${m.pct}%">${m.label}</div>`
-  ).join('');
-
-  const milestoneItems = milestones.map(m => {
-    const reached = totalProd >= m.val;
-    return `<div class="palier-milestone-item ${reached ? 'reached' : ''}">
-      <span class="ms-label">${reached ? '✓' : '○'} ${m.tier}</span><span>${m.label}</span>
-    </div>`;
-  }).join('');
-
-  document.getElementById('palierBanner').innerHTML = `
-    <div class="palier-banner-top">
-      <div>
-        <div class="palier-banner-title">Production collective 2026 — équipe</div>
-        <div class="palier-banner-prod">${fmtEur(totalProd)}</div>
-      </div>
-      <span class="palier-badge ${palier.cls}">${palier.pct > 0 ? '✓ ' : ''}${palier.label}</span>
-      <div class="palier-banner-next">${nextText}</div>
-    </div>
-    <div class="palier-bar-wrap">
-      <div class="bar-track-big">
-        <div class="bar-fill-big" style="width:${pct.toFixed(1)}%; background:${barColor}"></div>
-        <div class="bar-projected" style="left:${projPct.toFixed(1)}%">
-          <div class="bar-projected-label">Proj. ${fmtEur(projected)}</div>
-        </div>
-        ${milestonesHTML}
-      </div>
-    </div>
-    <div class="palier-milestones">${milestoneItems}</div>
-  `;
-}
-
-function renderRanking(sorted) {
-  const spInfo = getSPInfo(spGlobalValue);
-  const hasRef = Object.keys(refMap).length > 0;
-  const prev = getPrevMonth();
-  const prevGestMap = prev ? prev.gestionnaires : null;
-  const scored = calcScores(sorted, prevGestMap);
-  scored.sort((a, b) => b.score - a.score);
-  const maxScore = Math.max(...scored.map(s => s.score), 1);
-  const colSpan = hasRef ? 11 : 10;
-
-  document.getElementById('rankBody').innerHTML = scored.map((g, i) => {
-    const rank = i + 1;
-    const fdg = calcFDG(g);
-    const warns = checkConditions(g);
-    const medal = rank === 1 ? '🥇' : rank === 2 ? '🥈' : rank === 3 ? '🥉' : rank;
-    const activeCnt = g.polices.filter(p => p.active).length;
-
-    // Évolution vs mois précédent
-    let trendHTML = '<span class="trend-na">—</span>';
-    if (prevGestMap) {
-      const prevG = prevGestMap[g.name];
-      if (!prevG) {
-        trendHTML = '<span class="trend-new">🆕 Nouveau</span>';
-      } else {
-        const delta = g.primeProduction - prevG.primeProduction;
-        if (delta > 0) trendHTML = `<span class="trend-up">▲ +${fmtEur(delta)}</span>`;
-        else if (delta < 0) trendHTML = `<span class="trend-down">▼ ${fmtEur(delta)}</span>`;
-        else trendHTML = '<span class="trend-na">= stable</span>';
-      }
-    }
-
-    // Croissance N/N-1
-    let growthHTML = '';
-    if (hasRef) {
-      const ref2025 = refMap[g.name];
-      if (ref2025 && ref2025 > 0) {
-        const delta = g.primePortefeuille - ref2025;
-        const pctG = delta / ref2025 * 100;
-        const cls = pctG >= 0 ? 'growth-up' : 'growth-down';
-        const sign = pctG >= 0 ? '+' : '';
-        growthHTML = `<td><div class="${cls}">${sign}${pctG.toFixed(1)}%</div><div class="growth-sub">${sign}${fmtEur(delta)}</div></td>`;
-      } else {
-        growthHTML = `<td><span class="growth-na">Pas de réf.</span></td>`;
-      }
-    }
-
-    const totalProd = Object.values(gestMap).reduce((s, x) => s + x.primeProduction, 0);
-    const palier = getProdPalier(totalProd);
-    const scorePct = (g.score / maxScore * 100).toFixed(0);
-
-    return `
-      <tr>
-        <td><div class="rank-num">${medal}</div></td>
-        <td>
-          <div class="gest-name">${g.name}${!prevGestMap || !prevGestMap[g.name] && prevGestMap ? '<span class="gest-badge">NEW</span>' : ''}</div>
-          <div class="gest-site">${g.site || '—'}</div>
-          <div class="gest-count">${activeCnt} police${activeCnt > 1 ? 's' : ''}</div>
-        </td>
-        <td>
-          <div class="score-value">${g.score}</div>
-          <div class="score-bar-wrap"><div class="score-bar-track"><div class="score-bar-fill" style="width:${scorePct}%"></div></div></div>
-        </td>
-        <td>
-          <div class="amount-main">${fmtEur(g.primeProduction)}</div>
-          <div class="amount-sub">nouvelles affaires</div>
-        </td>
-        <td>
-          <div class="amount-main">${fmtEur(g.primePortefeuille)}</div>
-          <div class="amount-sub">HT</div>
-        </td>
-        <td>${trendHTML}</td>
-        <td>
-          <div class="${fdg !== null ? 'fdg-amount' : 'fdg-na'}" id="fdg-val-${i}">
-            ${fdg !== null ? fmtEur(fdg) : palier.pct === 0 ? 'Hors palier' : 'Saisir S/P'}
-          </div>
-          <div class="fdg-sub" id="fdg-sub-${i}">
-            ${fdg !== null ? `${palier.pct}% × ${spInfo.label.replace('× ', '')} × portef.` : ''}
-          </div>
-        </td>
-        ${growthHTML}
-        <td>
-          <div id="warn-${i}">
-            ${warns.length === 0
-              ? '<span class="warn-badge warn-ok">✓ OK</span>'
-              : warns.map(w => `<span class="warn-badge warn-bad">⚠ ${w}</span><br>`).join('')}
-          </div>
-        </td>
-        <td>
-          <button class="expand-btn" onclick="toggleDetail(${i})" id="exp-${i}">▶</button>
-        </td>
-      </tr>
-      <tr class="detail-row" id="det-${i}">
-        <td colspan="${colSpan}">
-          <div class="detail-inner">${buildDetailHTML(g)}</div>
-        </td>
-      </tr>
-    `;
-  }).join('');
-}
-
-function buildDetailHTML(g) {
-  const actives = g.polices.filter(p => p.active);
-  if (!actives.length) return '<p style="color:#9ca3af;font-size:12px;padding:8px 0">Aucune police active</p>';
-
-  const rows = actives.map(p => `
-    <tr>
-      <td>${p.preneur || '—'}</td>
-      <td style="font-weight:600">${p.produit || '—'}</td>
-      <td><span class="branche-tag" style="background:${BRANCH_BG[p.branche]||'#f3f4f6'}; color:${BRANCH_COLOR[p.branche]||'#374151'}">${BRANCH_LABEL[p.branche]||'Autre'}</span></td>
-      <td style="color:#6b7280">${p.annee || '—'}</td>
-      <td style="text-align:right; font-weight:600">${fmtEur(p.primeHT)}</td>
-    </tr>
-  `).join('');
-
-  const total = actives.reduce((s, p) => s + p.primeHT, 0);
-  return `
-    <table class="detail-table">
-      <thead><tr><td>Preneur</td><td>Produit</td><td>Branche</td><td>Année</td><td style="text-align:right">Prime HT</td></tr></thead>
-      <tbody>${rows}
-        <tr><td colspan="4" style="font-weight:700">Total</td><td style="text-align:right; font-weight:800; color:var(--navy)">${fmtEur(total)}</td></tr>
-      </tbody>
-    </table>
-  `;
-}
-
-// ── YEAR VIEW ─────────────────────────────────────────────────────────────
-function renderYearView() {
-  const keys = Object.keys(allMonths).sort();
-  if (!keys.length) return;
-
-  // Cumuls annuels
-  let totalProd = 0, totalPortef = 0, totalPolices = 0;
-  const allGest = {};
-
-  keys.forEach(k => {
-    const md = allMonths[k];
-    // On prend le dernier mois pour le portefeuille (c'est cumulatif)
-    totalProd = md.totalProd; // La prod dans le fichier est déjà cumulative (toutes polices 2026)
-    totalPortef = md.totalPortef;
-    totalPolices = md.totalPolices;
-
-    Object.values(md.gestionnaires).forEach(g => {
-      if (!allGest[g.name]) allGest[g.name] = { name: g.name, site: g.site, primeProduction: 0, polices: [], primePortefeuille: 0 };
-      allGest[g.name].primeProduction = g.primeProduction; // dernière valeur
-      allGest[g.name].primePortefeuille = g.primePortefeuille;
-      allGest[g.name].polices = g.polices;
-    });
-  });
-
-  const lastMonth = allMonths[keys[keys.length - 1]];
-  const monthIdx = parseInt(keys[keys.length - 1].split('-')[1]) || 1;
-  const projected = totalProd * (12 / monthIdx);
-  const palier = getProdPalier(totalProd);
-  const projPalier = getProdPalier(projected);
-
-  // KPIs annuels
-  document.getElementById('yearKpiGrid').innerHTML = `
-    <div class="kpi-card gold-accent">
-      <div class="kpi-label">Mois importés</div>
-      <div class="kpi-value">${keys.length}/12</div>
-      <div class="kpi-sub">Dernier : ${monthLabel(keys[keys.length - 1])}</div>
-    </div>
-    <div class="kpi-card green-accent">
-      <div class="kpi-label">Production cumul</div>
-      <div class="kpi-value">${fmtEur(totalProd)}</div>
-      <div class="kpi-sub">${palier.label}</div>
-    </div>
-    <div class="kpi-card purple-accent">
-      <div class="kpi-label">Rythme projeté</div>
-      <div class="kpi-value">${fmtEur(projected)}</div>
-      <div class="kpi-sub">${projPalier.label} en fin d'année</div>
-    </div>
-    <div class="kpi-card blue-accent">
-      <div class="kpi-label">Polices actives</div>
-      <div class="kpi-value">${totalPolices}</div>
-      <div class="kpi-sub">Dernier fichier</div>
-    </div>
-    <div class="kpi-card orange-accent">
-      <div class="kpi-label">Gestionnaires</div>
-      <div class="kpi-value">${Object.keys(allGest).length}</div>
-      <div class="kpi-sub">actifs cette année</div>
-    </div>
-  `;
-
-  // Chart
-  const maxProd = Math.max(...keys.map(k => allMonths[k].totalProd), 1);
-  document.getElementById('yearChart').innerHTML = keys.map(k => {
-    const md = allMonths[k];
-    const h = (md.totalProd / maxProd * 150);
-    const m = monthLabel(k).split(' ')[0].substring(0, 3);
-    return `<div class="bar-chart-col">
-      <div class="bar-chart-value">${fmt(md.totalProd)} €</div>
-      <div class="bar-chart-bar" style="height:${Math.max(4, h)}px"></div>
-      <div class="bar-chart-label">${m}</div>
-    </div>`;
-  }).join('');
-
-  // Palier annuel
-  renderYearPalier(totalProd, projected);
-
-  // Classement annuel
-  const sortedYear = Object.values(allGest).sort((a, b) => b.primeProduction - a.primeProduction);
-  const firstMonth = keys.length > 1 ? allMonths[keys[0]] : null;
-  const scored = calcScores(sortedYear, firstMonth ? firstMonth.gestionnaires : null);
-  scored.sort((a, b) => b.score - a.score);
-  const maxScore = Math.max(...scored.map(s => s.score), 1);
-
-  document.getElementById('yearRankBody').innerHTML = scored.map((g, i) => {
-    const rank = i + 1;
-    const medal = rank === 1 ? '🥇' : rank === 2 ? '🥈' : rank === 3 ? '🥉' : rank;
-    const activeCnt = g.polices.filter(p => p.active).length;
-    const scorePct = (g.score / maxScore * 100).toFixed(0);
-
-    let progHTML = '<span class="trend-na">—</span>';
-    if (firstMonth && firstMonth.gestionnaires[g.name]) {
-      const firstG = firstMonth.gestionnaires[g.name];
-      const delta = g.primeProduction - firstG.primeProduction;
-      if (delta > 0) progHTML = `<span class="trend-up">▲ +${fmtEur(delta)}</span>`;
-      else if (delta < 0) progHTML = `<span class="trend-down">▼ ${fmtEur(delta)}</span>`;
-      else progHTML = '<span class="trend-na">= stable</span>';
-    }
-
-    return `<tr>
-      <td><div class="rank-num">${medal}</div></td>
-      <td><div class="gest-name">${g.name}</div><div class="gest-site">${g.site || '—'}</div></td>
-      <td><div class="score-value">${g.score}</div><div class="score-bar-wrap"><div class="score-bar-track"><div class="score-bar-fill" style="width:${scorePct}%"></div></div></div></td>
-      <td><div class="amount-main">${fmtEur(g.primeProduction)}</div></td>
-      <td>${activeCnt} police${activeCnt > 1 ? 's' : ''}</td>
-      <td>${progHTML}</td>
-    </tr>`;
-  }).join('');
-}
-
-function renderYearPalier(totalProd, projected) {
-  const palier = getProdPalier(totalProd);
-  const MAX = 150000;
-  const pct = Math.min(100, totalProd / MAX * 100);
-  const projPct = Math.min(100, projected / MAX * 100);
-  const barColor = palier.cls === 'palier-0' ? '#9ca3af' : palier.cls === 'palier-1' ? '#f59e0b' : palier.cls === 'palier-2' ? '#3b82f6' : '#10b981';
-
-  const milestones = [
-    { val: 80000, label: '80 k€', pct: 80000/MAX*100 },
-    { val: 100000, label: '100 k€', pct: 100000/MAX*100 },
-    { val: 150000, label: '150 k€', pct: 100 },
-  ];
-
-  document.getElementById('yearPalierBanner').innerHTML = `
-    <div class="palier-banner-top">
-      <div>
-        <div class="palier-banner-title">Palier collectif — Année 2026</div>
-        <div class="palier-banner-prod">${fmtEur(totalProd)} <span style="font-size:14px;color:var(--text-s);font-weight:400">actuels</span> → <span style="color:#8b5cf6">${fmtEur(projected)}</span> <span style="font-size:14px;color:var(--text-s);font-weight:400">projetés</span></div>
-      </div>
-      <span class="palier-badge ${palier.cls}">${palier.pct > 0 ? '✓ ' : ''}${palier.label}</span>
-    </div>
-    <div class="palier-bar-wrap">
-      <div class="bar-track-big">
-        <div class="bar-fill-big" style="width:${pct.toFixed(1)}%; background:${barColor}"></div>
-        <div class="bar-projected" style="left:${projPct.toFixed(1)}%">
-          <div class="bar-projected-label">Proj.</div>
-        </div>
-        ${milestones.map(m => `<div class="bar-milestone" style="left:${m.pct}%"></div><div class="bar-milestone-label" style="left:${m.pct}%">${m.label}</div>`).join('')}
-      </div>
-    </div>
-  `;
-}
-
-// ── INTERACTIONS ──────────────────────────────────────────────────────────
-function updateSPGlobal(value) {
-  spGlobalValue = value;
-  const spInfo = getSPInfo(value);
-  const totalProd = Object.values(gestMap).reduce((s, x) => s + x.primeProduction, 0);
-  const palier = getProdPalier(totalProd);
-
-  const multEl = document.getElementById('spGlobalMult');
-  if (multEl) { multEl.textContent = spInfo.label; multEl.className = `sp-mult ${spInfo.cls}`; }
-
-  const sorted = getSorted();
-  sorted.forEach((g, i) => {
-    const fdg = calcFDG(g);
-    const valEl = document.getElementById(`fdg-val-${i}`);
-    const subEl = document.getElementById(`fdg-sub-${i}`);
-    if (valEl) {
-      valEl.className = fdg !== null ? 'fdg-amount' : 'fdg-na';
-      valEl.textContent = fdg !== null ? fmtEur(fdg) : palier.pct === 0 ? 'Hors palier' : 'Saisir S/P';
-    }
-    if (subEl) {
-      subEl.textContent = fdg !== null ? `${palier.pct}% × ${spInfo.label.replace('× ', '')} × portef.` : '';
-    }
-  });
-
-  const allFDG = sorted.map(g => calcFDG(g)).filter(v => v !== null);
-  const totalFDG = allFDG.length ? allFDG.reduce((s, v) => s + v, 0) : null;
-  document.getElementById('kpi-fdg').textContent = totalFDG !== null ? fmtEur(totalFDG) : '—';
-}
-
-function toggleDetail(index) {
-  const row = document.getElementById(`det-${index}`);
-  const btn = document.getElementById(`exp-${index}`);
-  const open = row.classList.toggle('open');
-  btn.textContent = open ? '▼' : '▶';
-}
+  ready();
 </script>
 </body>
 </html>

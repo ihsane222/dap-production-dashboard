@@ -1,0 +1,30 @@
+{
+  "version": 1,
+  "updated": "2026-04-21",
+  "exact": {
+    "P.LiZ": "Incendie",
+    "PAC-AEDES": "Incendie",
+    "P-Home": "Incendie",
+    "P.Home": "Incendie",
+    "Auto - P30": "Auto",
+    "Auto - P40": "Auto",
+    "Auto - P50": "Auto",
+    "Auto - P60": "Auto",
+    "Oldtimer": "Auto",
+    "CARES": "Auto",
+    "Vélo": "Vélo",
+    "Velo": "Vélo",
+    "PJ Auto": "PJ",
+    "PJ": "PJ"
+  },
+  "patterns": [
+    { "regex": "^P\\.?Li?Z", "branche": "Incendie" },
+    { "regex": "^P[\\.\\-]?Home", "branche": "Incendie" },
+    { "regex": "^PAC", "branche": "Incendie" },
+    { "regex": "^Auto\\s*[-\\s]*P?\\d", "branche": "Auto" },
+    { "regex": "^(Oldtimer|CARES)", "branche": "Auto" },
+    { "regex": "^V[eé]lo", "branche": "Vélo" },
+    { "regex": "^PJ", "branche": "PJ" }
+  ],
+  "default": "Autre"
+}
