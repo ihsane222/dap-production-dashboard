@@ -1,4 +1,36 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 40" width="40" height="40">
-  <rect width="40" height="40" rx="8" fill="#1e3a8a"/>
-  <text x="20" y="27" text-anchor="middle" fill="white" font-family="Inter, sans-serif" font-weight="700" font-size="17">D</text>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 520 120" width="520" height="120">
+  <defs>
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&amp;display=swap');
+    </style>
+  </defs>
+
+  <!-- DAP Letters -->
+  <g fill="#2D4A6F">
+    <!-- D -->
+    <path d="M0,15 L0,105 L45,105 C72,105 90,85 90,60 C90,35 72,15 45,15 Z M18,30 L43,30 C62,30 72,42 72,60 C72,78 62,90 43,90 L18,90 Z"/>
+    <!-- A -->
+    <path d="M100,105 L138,15 L156,15 L194,105 L175,105 L167,85 L127,85 L119,105 Z M133,70 L161,70 L147,32 Z"/>
+    <!-- P -->
+    <path d="M205,15 L205,105 L223,105 L223,70 L255,70 C277,70 290,57 290,42.5 C290,28 277,15 255,15 Z M223,30 L253,30 C267,30 272,36 272,42.5 C272,49 267,55 253,55 L223,55 Z"/>
+  </g>
+
+  <!-- Degauquier & Partners -->
+  <text x="305" y="40" font-family="Montserrat, Arial, Helvetica, sans-serif" font-size="16" font-weight="700" fill="#2D4A6F" letter-spacing="0.3">Degauquier &amp; Partners</text>
+
+  <!-- Line separator -->
+  <line x1="305" y1="52" x2="480" y2="52" stroke="#7FB3D8" stroke-width="1"/>
+
+  <!-- Assurances - Crédits -->
+  <text x="305" y="72" font-family="Montserrat, Arial, Helvetica, sans-serif" font-size="15" font-weight="400" fill="#7FB3D8" letter-spacing="0.5">Assurances - Crédits</text>
+
+  <!-- Wing/Feather icon -->
+  <g transform="translate(482, 30)" fill="none" stroke="#7FB3D8" stroke-width="1.8" stroke-linecap="round">
+    <path d="M0,45 C5,30 15,15 30,0" />
+    <path d="M3,45 C8,32 16,20 28,8" />
+    <path d="M6,45 C10,35 17,25 26,16" />
+    <path d="M9,45 C13,37 18,30 25,23" />
+    <path d="M12,45 C15,39 19,33 24,28" />
+    <path d="M15,45 C18,40 21,36 24,33" />
+  </g>
 </svg>

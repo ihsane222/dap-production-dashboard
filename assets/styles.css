@@ -51,12 +51,11 @@ aside.sidebar {
   display: flex; flex-direction: column;
 }
 .sidebar-logo {
-  display: flex; align-items: center; gap: 10px;
-  padding: 4px 8px 24px;
-  font-weight: 700; font-size: 16px;
+  display: flex; flex-direction: column; align-items: flex-start; gap: 6px;
+  padding: 4px 8px 22px;
 }
-.sidebar-logo img { width: 28px; height: 28px; border-radius: 6px; }
-.sidebar-logo .tagline { font-size: 11px; color: var(--gray-500); font-weight: 500; display: block; margin-top: 1px; letter-spacing: 0.02em; }
+.sidebar-logo img { width: 100%; max-width: 190px; height: auto; display: block; }
+.sidebar-logo .tagline { font-size: 11px; color: var(--gray-500); font-weight: 600; display: block; letter-spacing: 0.02em; text-transform: uppercase; }
 .nav-section {
   font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em;
   color: var(--gray-400); padding: 16px 10px 6px; font-weight: 600;
