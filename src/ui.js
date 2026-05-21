@@ -1,17 +1,18 @@
 // ui.js — rendu DOM et interactions (UX refondue)
-import { parseAedesFile } from './parser.js?v=10';
+import { parseAedesFile } from './parser.js?v=11';
 import {
   computeKpisFromAll, productionMensuelleCumulee, mixBranches, classementGestionnaires,
   PALIERS_PRODUCTION, PALIERS_CROISSANCE
-} from './kpis.js?v=10';
+} from './kpis.js?v=11';
 import {
   saveSnapshot, loadSnapshot, loadAllSnapshots, listSnapshotsMeta, deleteSnapshot, clearAll,
-  getOverrides, setOverrides
-} from './snapshots.js?v=10';
+  getOverrides, setOverrides, importSnapshot
+} from './snapshots.js?v=11';
 import {
   renderLineProduction, renderDonutBranches, radialGaugeHTML,
   formatEur, formatPct, formatPctSigned, destroyAllCharts
-} from './charts.js?v=10';
+} from './charts.js?v=11';
+import { pullAll, pushSnapshot, pushDelete, pushOverrides, CLOUD_OVERRIDES_KEY } from './sync.js?v=11';
 
 const AVATAR_COLORS = ['#1e3a8a', '#059669', '#d97706', '#7c3aed', '#db2777', '#0891b2', '#dc2626', '#65a30d'];
 
@@ -32,7 +33,35 @@ export function initUI() {
   setupPortefeuilleFilters();
   setupHistoriqueCompare();
   setupSnapshotsLink();
-  refresh();
+  refresh();              // rendu immédiat des données locales
+  syncFromCloud();        // puis fusion des données partagées (en arrière-plan)
+}
+
+/* ============================================================
+ *  SYNC — données partagées entre collègues (webhook n8n)
+ * ============================================================ */
+async function syncFromCloud() {
+  const months = await pullAll();
+  let imported = 0;
+  let cloudOverrides = null;
+
+  for (const [key, val] of Object.entries(months)) {
+    if (!val || typeof val !== 'object') continue;
+    if (key === CLOUD_OVERRIDES_KEY) { cloudOverrides = val.overrides || null; continue; }
+    // Snapshots au format réécriture (ont .key + .polices) ; les entrées
+    // héritées de l'ancien dashboard (format agrégé, sans .polices) sont ignorées.
+    if (Array.isArray(val.polices) && val.key) {
+      if (importSnapshot(val)) imported++;
+    }
+  }
+
+  // Les valeurs officielles partagées s'appliquent si rien n'a encore été saisi
+  // en local (premier chargement) — on n'écrase pas une saisie locale en cours.
+  if (cloudOverrides && Object.keys(getOverrides()).length === 0) {
+    setOverrides(cloudOverrides);
+  }
+
+  if (imported > 0 || cloudOverrides) refresh();
 }
 
 /* ============================================================
@@ -215,6 +244,7 @@ async function handleUpload(files) {
   let totalSnapshots = 0;
   const warnings = [];
   const errors = [];
+  const savedKeys = [];
 
   for (const file of files) {
     const li = modal.addFile(file.name);
@@ -228,7 +258,7 @@ async function handleUpload(files) {
       let fileSnapshotCount = 0;
       const fileWarnings = [];
       for (const parsed of parsedArray) {
-        saveSnapshot(parsed);
+        savedKeys.push(saveSnapshot(parsed));
         fileSnapshotCount++;
         totalSnapshots++;
         if (parsed.warnings.length) fileWarnings.push(...parsed.warnings);
@@ -256,6 +286,12 @@ async function handleUpload(files) {
 
   modal.finish({ total: files.length, snapshots: totalSnapshots, warnings, errors });
   refresh();
+
+  // Partage : pousse les snapshots fraîchement importés vers le store commun
+  for (const key of savedKeys) {
+    const raw = localStorage.getItem(key);
+    if (raw) pushSnapshot(JSON.parse(raw));
+  }
 }
 
 /* ============================================================
@@ -271,6 +307,7 @@ function setupOverrides() {
   });
   document.getElementById('btn-clear-overrides').addEventListener('click', () => {
     setOverrides({});
+    pushOverrides({});   // efface aussi les valeurs officielles partagées
     ['ovr-prod', 'ovr-port', 'ovr-crois', 'ovr-port-n1'].forEach(id => {
       const el = document.getElementById(id);
       if (el) el.value = '';
@@ -290,6 +327,7 @@ function onOverrideChange() {
     croissanceOfficielle: Number.isFinite(crois) ? crois : null,
     portefeuilleN1: Number.isFinite(portN1) ? portN1 : null
   });
+  pushOverrides(getOverrides());   // partage les valeurs officielles avec l'équipe
   refresh();
 }
 
@@ -525,6 +563,7 @@ function renderSnapshotList(meta) {
       row.classList.add('removing');
       setTimeout(() => {
         deleteSnapshot(key);
+        pushDelete(key);   // propage la suppression au store partagé
         refresh();
       }, 200);
     });
@@ -991,7 +1030,7 @@ function renderTimeline(meta) {
       const key = btn.dataset.del;
       const row = btn.closest('.snapshot-item');
       row.classList.add('removing');
-      setTimeout(() => { deleteSnapshot(key); refresh(); }, 200);
+      setTimeout(() => { deleteSnapshot(key); pushDelete(key); refresh(); }, 200);
     });
   });
 }

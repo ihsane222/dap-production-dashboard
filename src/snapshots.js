@@ -59,6 +59,23 @@ export function loadAllSnapshots() {
     .filter(Boolean);
 }
 
+/**
+ * Importe un snapshot compact venu du store partagé (cloud), sans re-parser
+ * de fichier. `compact` a la même forme que celle produite par saveSnapshot
+ * (snapshotDate/dateSouscription en chaînes ISO). Renvoie true si importé.
+ */
+export function importSnapshot(compact) {
+  if (!compact || !compact.key || !Array.isArray(compact.polices)) return false;
+  localStorage.setItem(compact.key, JSON.stringify(compact));
+  updateMeta(compact.key, compact);
+  return true;
+}
+
+/** True si un snapshot de cette clé existe déjà en local. */
+export function hasSnapshot(key) {
+  return getMeta().some(m => m.key === key);
+}
+
 export function listSnapshotsMeta() {
   const meta = getMeta();
   return meta.sort((a, b) => b.snapshotDate.localeCompare(a.snapshotDate));
