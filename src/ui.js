@@ -287,10 +287,12 @@ async function handleUpload(files) {
   modal.finish({ total: files.length, snapshots: totalSnapshots, warnings, errors });
   refresh();
 
-  // Partage : pousse les snapshots fraîchement importés vers le store commun
+  // Partage : pousse les snapshots fraîchement importés vers le store commun.
+  // Séquentiel (await) car le backend n8n fait un read-modify-write : deux POST
+  // concurrents se court-circuiteraient. Le webhook ne répond qu'après écriture.
   for (const key of savedKeys) {
     const raw = localStorage.getItem(key);
-    if (raw) pushSnapshot(JSON.parse(raw));
+    if (raw) await pushSnapshot(JSON.parse(raw));
   }
 }
 
