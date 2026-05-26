@@ -194,7 +194,7 @@ function renderThermo(total){
   if (!next){
     const last = PALIERS_PRODUCTION[PALIERS_PRODUCTION.length-1];
     el.innerHTML = `<h2>Production de l'équipe</h2>
-      <div class="thermo-top"><div class="thermo-total">${formatEur(total)} <small>cumulé</small></div>
+      <div class="thermo-top"><div class="thermo-total">${formatEur(total)} <small>production 2026 à ce jour</small></div>
       <div class="thermo-goal">🎉 Palier max atteint <b>${last.pct}%</b></div></div>
       <div class="bar"><div class="bar-fill" style="width:100%"></div></div>
       <div class="ticks">${ticks}</div>`;
@@ -204,7 +204,7 @@ function renderThermo(total){
   const manque = next.seuil - total;
   el.innerHTML = `<h2>Production de l'équipe</h2>
     <div class="thermo-top">
-      <div class="thermo-total">${formatEur(total)} <small>cumulé</small></div>
+      <div class="thermo-total">${formatEur(total)} <small>production 2026 à ce jour</small></div>
       <div class="thermo-goal">Plus que <b>${formatEur(manque)}</b><br>pour le palier <b>${next.pct}%</b> (${formatEur(next.seuil)})</div>
     </div>
     <div class="bar"><div class="bar-fill" style="width:${pct.toFixed(1)}%"></div></div>
