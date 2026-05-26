@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Concours Production 2026 · DAP Solidarity</title>
+  <link rel="icon" href="assets/logo-dap.svg">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --navy:#1a2f4a; --brand:#2d4a6f; --brand-2:#3a5e8c;
+      --gold:#e8b84b; --gold-dark:#b8902f;
+      --green:#10b981; --red:#ef4444;
+      --ink:#111827; --muted:#6b7280; --line:#e5e7eb;
+      --bg:#f4f6fa; --card:#ffffff;
+      --r:16px; --shadow:0 6px 24px rgba(26,47,74,.08);
+    }
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:Inter,system-ui,sans-serif;background:var(--bg);color:var(--ink);
+      -webkit-font-smoothing:antialiased;line-height:1.4}
+    .wrap{max-width:920px;margin:0 auto;padding:24px 18px 60px}
+
+    header{text-align:center;padding:14px 0 26px}
+    header img{height:46px;width:auto;margin-bottom:14px}
+    .title{font-size:30px;font-weight:900;letter-spacing:-.02em;color:var(--navy)}
+    .title span{color:var(--gold-dark)}
+    .subtitle{font-size:13px;font-weight:600;color:var(--muted);text-transform:uppercase;
+      letter-spacing:.08em;margin-top:4px}
+    .updated{font-size:12px;color:var(--muted);margin-top:8px}
+
+    .card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);
+      box-shadow:var(--shadow);padding:22px;margin-bottom:20px}
+    h2{font-size:14px;font-weight:800;text-transform:uppercase;letter-spacing:.06em;
+      color:var(--brand);margin-bottom:16px}
+
+    .thermo{background:linear-gradient(135deg,var(--navy),var(--brand));color:#fff;border:none}
+    .thermo h2{color:rgba(255,255,255,.7)}
+    .thermo-top{display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:8px;margin-bottom:14px}
+    .thermo-total{font-size:34px;font-weight:900;letter-spacing:-.02em}
+    .thermo-total small{font-size:14px;font-weight:600;opacity:.7}
+    .thermo-goal{font-size:13px;text-align:right;opacity:.9}
+    .thermo-goal b{color:var(--gold);font-weight:800}
+    .bar{height:16px;border-radius:100px;background:rgba(255,255,255,.18);overflow:hidden;position:relative}
+    .bar-fill{height:100%;border-radius:100px;background:linear-gradient(90deg,var(--gold),#ffd87a);
+      transition:width 1s cubic-bezier(.2,.8,.2,1)}
+    .ticks{display:flex;justify-content:space-between;margin-top:8px;font-size:11px;opacity:.75;gap:6px;flex-wrap:wrap}
+    .tick.done{color:var(--gold);font-weight:700;opacity:1}
+
+    .podium{display:grid;grid-template-columns:1fr 1.15fr 1fr;gap:12px;align-items:end;margin-bottom:20px}
+    .pod{background:var(--card);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--shadow);
+      padding:18px 12px;text-align:center;position:relative;overflow:hidden}
+    .pod .medal{font-size:30px;line-height:1}
+    .pod .av{width:48px;height:48px;border-radius:50%;margin:8px auto 6px;display:flex;align-items:center;
+      justify-content:center;font-weight:800;color:#fff;font-size:16px}
+    .pod .nm{font-weight:800;font-size:14px;color:var(--navy);line-height:1.2}
+    .pod .st{font-size:11px;color:var(--muted);margin-top:1px}
+    .pod .pr{font-weight:900;font-size:18px;margin-top:8px;color:var(--ink)}
+    .pod.p1{transform:translateY(-10px);border-color:var(--gold);box-shadow:0 10px 30px rgba(232,184,75,.35)}
+    .pod.p1::before{content:"";position:absolute;inset:0 0 auto 0;height:4px;background:var(--gold)}
+    .pod.p2::before{content:"";position:absolute;inset:0 0 auto 0;height:4px;background:#9aa7b8}
+    .pod.p3::before{content:"";position:absolute;inset:0 0 auto 0;height:4px;background:#cd8a4f}
+
+    .row{display:flex;align-items:center;gap:12px;padding:11px 8px;border-radius:10px}
+    .row+.row{border-top:1px solid var(--line)}
+    .rank{width:30px;text-align:center;font-weight:800;color:var(--muted);font-size:15px;flex:none}
+    .rank.top{color:var(--gold-dark)}
+    .av-s{width:34px;height:34px;border-radius:50%;flex:none;display:flex;align-items:center;
+      justify-content:center;font-weight:700;color:#fff;font-size:13px}
+    .who{flex:1;min-width:0}
+    .who .nm{font-weight:700;font-size:14px;color:var(--navy);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .who .meta{font-size:11.5px;color:var(--muted);display:flex;gap:8px;flex-wrap:wrap}
+    .who .gap{color:var(--brand-2);font-weight:600}
+    .prog{flex:none;width:120px}
+    .prog .pbar{height:7px;border-radius:100px;background:#f0f2f5;overflow:hidden}
+    .prog .pfill{height:100%;border-radius:100px;background:linear-gradient(90deg,var(--brand),var(--brand-2))}
+    .amount{flex:none;width:92px;text-align:right;font-weight:800;font-size:14px;color:var(--ink)}
+    @media(max-width:560px){.prog{display:none}.amount{width:78px;font-size:13px}
+      .title{font-size:24px}.thermo-total{font-size:28px}}
+
+    .site-row{display:flex;align-items:center;gap:12px;padding:10px 6px}
+    .site-row+.site-row{border-top:1px solid var(--line)}
+    .site-rank{width:24px;font-weight:800;color:var(--muted);text-align:center;flex:none}
+    .site-name{flex:1;font-weight:700;color:var(--navy);font-size:14px}
+    .site-sub{font-size:11.5px;color:var(--muted);font-weight:500}
+    .site-bar{flex:none;width:140px;height:8px;border-radius:100px;background:#f0f2f5;overflow:hidden}
+    .site-bar i{display:block;height:100%;background:linear-gradient(90deg,var(--gold-dark),var(--gold))}
+    .site-amt{flex:none;width:90px;text-align:right;font-weight:800;font-size:14px}
+    @media(max-width:560px){.site-bar{display:none}}
+
+    footer{text-align:center;font-size:12px;color:var(--muted);margin-top:30px;line-height:1.7}
+    footer a{color:var(--brand);text-decoration:none;font-weight:600}
+    .empty{text-align:center;padding:50px 20px;color:var(--muted)}
+    #loading{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;
+      background:var(--bg);font-weight:600;color:var(--muted);z-index:10}
+    .spin{width:22px;height:22px;border:3px solid var(--line);border-top-color:var(--brand);
+      border-radius:50%;animation:s 1s linear infinite;margin-right:10px}
+    @keyframes s{to{transform:rotate(360deg)}}
+  </style>
+</head>
+<body>
+
+<div id="loading"><span class="spin"></span> Chargement du classement…</div>
+
+<div class="wrap" id="app" style="display:none">
+  <header>
+    <img src="assets/logo-dap.svg?v=2" alt="DAP">
+    <div class="title">Concours Production <span id="year">2026</span></div>
+    <div class="subtitle">DAP Solidarity · Convention Aedes</div>
+    <div class="updated" id="updated"></div>
+  </header>
+
+  <section class="card thermo" id="thermo"></section>
+  <div class="podium" id="podium"></div>
+
+  <section class="card">
+    <h2>Classement complet</h2>
+    <div id="ranking"></div>
+  </section>
+
+  <section class="card" id="sites-card">
+    <h2>Classement par site</h2>
+    <div id="sites"></div>
+  </section>
+
+  <footer>
+    Classement basé sur la production HT signée en <span class="yr">2026</span> · mise à jour mensuelle.<br>
+    Données partagées · <a href="index.html">Vue détaillée (managers)</a>
+  </footer>
+</div>
+
+<script type="module">
+import { pullAll } from './src/sync.js?v=11';
+import { computeKpisFromAll, classementGestionnaires, PALIERS_PRODUCTION } from './src/kpis.js?v=11';
+import { formatEur } from './src/charts.js?v=11';
+
+const PALETTE = ['#2d4a6f','#3a5e8c','#0ea5e9','#10b981','#8b5cf6','#f59e0b','#ec4899','#14b8a6','#ef4444','#6366f1'];
+const colorFor = (name) => { let h=0; for(const c of name) h=(h*31+c.charCodeAt(0))>>>0; return PALETTE[h%PALETTE.length]; };
+const initials = (name) => name.split(/\s+/).filter(Boolean).slice(0,2).map(w=>w[0]?.toUpperCase()||'').join('') || '?';
+
+function rehydrate(compact){
+  return {
+    ...compact,
+    snapshotDate: new Date(compact.snapshotDate),
+    polices: compact.polices.map(p => ({...p, dateSouscription: p.dateSouscription ? new Date(p.dateSouscription) : null}))
+  };
+}
+
+(async function(){
+  let months = {};
+  try { months = await pullAll(); } catch(e){ console.error(e); }
+
+  const snapshots = Object.values(months)
+    .filter(v => v && typeof v === 'object' && Array.isArray(v.polices) && v.key)
+    .map(rehydrate);
+
+  if (!snapshots.length){ showEmpty(); return; }
+
+  const kpis = computeKpisFromAll(snapshots, {});
+  const year = kpis.targetYear;
+  document.getElementById('year').textContent = year;
+  document.querySelectorAll('.yr').forEach(e => e.textContent = year);
+
+  let rows = classementGestionnaires(kpis._policesActives, year)
+    .filter(r => r.production > 0 && r.gestionnaire && r.gestionnaire !== 'Inconnu');
+
+  if (!rows.length){ showEmpty('Aucune production '+year+' enregistrée pour le moment.'); return; }
+
+  const total = rows.reduce((s,r)=>s+r.production,0);
+  const leader = rows[0].production;
+
+  renderUpdated(kpis.snapshotDate);
+  renderThermo(total);
+  renderPodium(rows);
+  renderRanking(rows, leader);
+  renderSites(rows);
+
+  document.getElementById('loading').style.display='none';
+  document.getElementById('app').style.display='';
+})();
+
+function renderUpdated(d){
+  try{
+    const f = new Date(d).toLocaleDateString('fr-BE',{day:'numeric',month:'long',year:'numeric'});
+    document.getElementById('updated').textContent = 'Dernière mise à jour : '+f;
+  }catch{}
+}
+
+function renderThermo(total){
+  const next = PALIERS_PRODUCTION.find(p => total < p.seuil);
+  const el = document.getElementById('thermo');
+  const ticks = PALIERS_PRODUCTION.map(p =>
+    `<span class="tick ${total>=p.seuil?'done':''}">${total>=p.seuil?'✓ ':''}${p.pct}% · ${formatEur(p.seuil)}</span>`
+  ).join('');
+  if (!next){
+    const last = PALIERS_PRODUCTION[PALIERS_PRODUCTION.length-1];
+    el.innerHTML = `<h2>Production de l'équipe</h2>
+      <div class="thermo-top"><div class="thermo-total">${formatEur(total)} <small>cumulé</small></div>
+      <div class="thermo-goal">🎉 Palier max atteint <b>${last.pct}%</b></div></div>
+      <div class="bar"><div class="bar-fill" style="width:100%"></div></div>
+      <div class="ticks">${ticks}</div>`;
+    return;
+  }
+  const pct = Math.min(100, total/next.seuil*100);
+  const manque = next.seuil - total;
+  el.innerHTML = `<h2>Production de l'équipe</h2>
+    <div class="thermo-top">
+      <div class="thermo-total">${formatEur(total)} <small>cumulé</small></div>
+      <div class="thermo-goal">Plus que <b>${formatEur(manque)}</b><br>pour le palier <b>${next.pct}%</b> (${formatEur(next.seuil)})</div>
+    </div>
+    <div class="bar"><div class="bar-fill" style="width:${pct.toFixed(1)}%"></div></div>
+    <div class="ticks">${ticks}</div>`;
+}
+
+function renderPodium(rows){
+  const top = rows.slice(0,3);
+  const order = [1,0,2];
+  const medals = ['🥇','🥈','🥉'];
+  const el = document.getElementById('podium');
+  el.innerHTML = order.filter(i=>top[i]).map(i=>{
+    const r = top[i];
+    return `<div class="pod p${i+1}">
+      <div class="medal">${medals[i]}</div>
+      <div class="av" style="background:${colorFor(r.gestionnaire)}">${initials(r.gestionnaire)}</div>
+      <div class="nm">${esc(r.gestionnaire)}</div>
+      <div class="st">${esc(r.site||'—')}</div>
+      <div class="pr">${formatEur(r.production)}</div>
+    </div>`;
+  }).join('');
+}
+
+function renderRanking(rows, leader){
+  const el = document.getElementById('ranking');
+  el.innerHTML = rows.map((r,i)=>{
+    const gap = i>0 ? rows[i-1].production - r.production : 0;
+    const gapTxt = i>0 && gap>0
+      ? `<span class="gap">à ${formatEur(gap)} du ${i}ᵉ</span>`
+      : (i===0 ? `<span class="gap">🔥 en tête</span>` : '');
+    const w = leader>0 ? Math.max(4, r.production/leader*100) : 0;
+    return `<div class="row">
+      <div class="rank ${i<3?'top':''}">${i+1}</div>
+      <div class="av-s" style="background:${colorFor(r.gestionnaire)}">${initials(r.gestionnaire)}</div>
+      <div class="who">
+        <div class="nm">${esc(r.gestionnaire)}</div>
+        <div class="meta"><span>${esc(r.site||'—')}</span>${gapTxt}</div>
+      </div>
+      <div class="prog"><div class="pbar"><div class="pfill" style="width:${w.toFixed(1)}%"></div></div></div>
+      <div class="amount">${formatEur(r.production)}</div>
+    </div>`;
+  }).join('');
+}
+
+function renderSites(rows){
+  const map = new Map();
+  for (const r of rows){
+    const s = r.site || '—';
+    if (!map.has(s)) map.set(s, {site:s, prod:0, n:0});
+    const o = map.get(s); o.prod += r.production; o.n++;
+  }
+  const sites = [...map.values()].sort((a,b)=>b.prod-a.prod);
+  if (sites.length <= 1){ document.getElementById('sites-card').style.display='none'; return; }
+  const max = sites[0].prod;
+  document.getElementById('sites').innerHTML = sites.map((s,i)=>`
+    <div class="site-row">
+      <div class="site-rank">${i+1}</div>
+      <div class="site-name">${esc(s.site)} <span class="site-sub">· ${s.n} gestionnaire${s.n>1?'s':''}</span></div>
+      <div class="site-bar"><i style="width:${(s.prod/max*100).toFixed(1)}%"></i></div>
+      <div class="site-amt">${formatEur(s.prod)}</div>
+    </div>`).join('');
+}
+
+function showEmpty(msg){
+  document.getElementById('loading').style.display='none';
+  document.getElementById('app').style.display='';
+  document.querySelector('.wrap').innerHTML = `<header><img src="assets/logo-dap.svg?v=2" alt="DAP" style="height:46px">
+    <div class="title">Concours Production</div></header>
+    <div class="card empty">${msg || 'Aucune donnée disponible pour le moment.<br>Reviens quand les chiffres du mois auront été chargés.'}</div>`;
+}
+
+function esc(s){return String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
+</script>
+</body>
+</html>
