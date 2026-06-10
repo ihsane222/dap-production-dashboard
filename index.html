@@ -248,7 +248,7 @@
       <div class="card">
         <h2>Toutes les polices actives <span class="hint" id="pf-count-hint">—</span></h2>
         <div class="filters-bar">
-          <input type="search" id="pf-search" placeholder="Rechercher un preneur, n° contrat, gestionnaire..." class="filter-input">
+          <input type="search" id="pf-search" placeholder="Rechercher un preneur, contrat, gestionnaire, email..." class="filter-input">
           <select id="pf-filter-branche" class="filter-select"><option value="">Toutes les branches</option></select>
           <select id="pf-filter-gestionnaire" class="filter-select"><option value="">Tous les gestionnaires</option></select>
           <select id="pf-filter-type" class="filter-select">
@@ -256,6 +256,7 @@
             <option value="NA">Nouvelles affaires uniquement</option>
             <option value="RN">Renouvellements uniquement</option>
           </select>
+          <button class="btn btn-secondary btn-small" id="pf-copy-mails-btn" title="Copier les emails filtrés (uniques, séparés par ;)">✉ Copier emails</button>
           <button class="btn btn-secondary btn-small" id="pf-export-btn">⬇ Export CSV</button>
         </div>
         <div class="table-scroll">
@@ -263,6 +264,7 @@
             <thead>
               <tr>
                 <th>Preneur</th>
+                <th>Email</th>
                 <th>N° contrat</th>
                 <th>Produit</th>
                 <th>Branche</th>

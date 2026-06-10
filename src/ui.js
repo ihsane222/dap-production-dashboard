@@ -1,18 +1,18 @@
 // ui.js — rendu DOM et interactions (UX refondue)
-import { parseAedesFile } from './parser.js?v=12';
+import { parseAedesFile } from './parser.js?v=14';
 import {
   computeKpisFromAll, productionMensuelleCumulee, mixBranches, classementGestionnaires,
   PALIERS_PRODUCTION, PALIERS_CROISSANCE
-} from './kpis.js?v=12';
+} from './kpis.js?v=14';
 import {
   saveSnapshot, loadSnapshot, loadAllSnapshots, listSnapshotsMeta, deleteSnapshot, clearAll,
   getOverrides, setOverrides, importSnapshot
-} from './snapshots.js?v=12';
+} from './snapshots.js?v=14';
 import {
   renderLineProduction, renderDonutBranches, radialGaugeHTML,
   formatEur, formatPct, formatPctSigned, destroyAllCharts
-} from './charts.js?v=12';
-import { pullAll, pushSnapshot, pushDelete, pushOverrides, CLOUD_OVERRIDES_KEY } from './sync.js?v=12';
+} from './charts.js?v=14';
+import { pullAll, pushSnapshot, pushDelete, pushOverrides, CLOUD_OVERRIDES_KEY } from './sync.js?v=14';
 
 const AVATAR_COLORS = ['#1e3a8a', '#059669', '#d97706', '#7c3aed', '#db2777', '#0891b2', '#dc2626', '#65a30d'];
 
@@ -775,6 +775,7 @@ function setupPortefeuilleFilters() {
   g.addEventListener('change', () => { pfFilters.gestionnaire = g.value; refresh(); });
   t.addEventListener('change', () => { pfFilters.type = t.value; refresh(); });
   document.getElementById('pf-export-btn')?.addEventListener('click', exportPortefeuilleCsv);
+  document.getElementById('pf-copy-mails-btn')?.addEventListener('click', copyFilteredMails);
 }
 
 function renderViewPortefeuille(k, snapshots) {
@@ -845,7 +846,7 @@ function renderViewPortefeuille(k, snapshots) {
     if (pfFilters.type === 'NA' && (!p.dateSouscription || p.dateSouscription.getFullYear() !== targetYear)) return false;
     if (pfFilters.type === 'RN' && p.dateSouscription && p.dateSouscription.getFullYear() === targetYear) return false;
     if (pfFilters.search) {
-      const hay = (p.preneur + ' ' + (p.numContrat || '') + ' ' + (p.gestionnaire || '') + ' ' + (p.produit || '')).toLowerCase();
+      const hay = (p.preneur + ' ' + (p.numContrat || '') + ' ' + (p.gestionnaire || '') + ' ' + (p.produit || '') + ' ' + (p.mail || '')).toLowerCase();
       if (!hay.includes(pfFilters.search)) return false;
     }
     return true;
@@ -862,9 +863,14 @@ function renderViewPortefeuille(k, snapshots) {
       : etat === 'NO' ? `<span class="tag pending">${etat}</span>`
       : etat ? `<span class="tag muted">${etat}</span>`
       : `<span class="tag muted">—</span>`;
+    const mail = (p.mail || '').trim();
+    const mailCell = mail
+      ? `<a href="mailto:${escapeHtml(mail)}" class="mail-link">${escapeHtml(mail)}</a>`
+      : '<span class="text-muted">—</span>';
     return `
       <tr>
         <td><b>${escapeHtml(p.preneur)}</b></td>
+        <td>${mailCell}</td>
         <td class="mono">${escapeHtml(p.numContrat || '—')}</td>
         <td>${escapeHtml(p.produit || '—')}</td>
         <td>${escapeHtml(p.branche || 'Autre')}</td>
@@ -880,7 +886,7 @@ function renderViewPortefeuille(k, snapshots) {
 
 function exportPortefeuilleCsv() {
   const rows = document.querySelectorAll('#pf-polices-body tr');
-  const headers = ['Preneur', 'N° contrat', 'Produit', 'Branche', 'Type', 'Date souscription', 'Prime HT', 'Gestionnaire', 'État'];
+  const headers = ['Preneur', 'Email', 'N° contrat', 'Produit', 'Branche', 'Type', 'Date souscription', 'Prime HT', 'Gestionnaire', 'État'];
   const lines = [headers.join(';')];
   rows.forEach(tr => {
     const cols = [...tr.querySelectorAll('td')].map(td => {
@@ -894,6 +900,34 @@ function exportPortefeuilleCsv() {
   a.href = URL.createObjectURL(blob);
   a.download = `portefeuille-${new Date().toISOString().slice(0,10)}.csv`;
   a.click();
+}
+
+function copyFilteredMails() {
+  const btn = document.getElementById('pf-copy-mails-btn');
+  const original = btn?.innerHTML;
+  const mails = new Set();
+  document.querySelectorAll('#pf-polices-body tr a.mail-link').forEach(a => {
+    const m = a.textContent.trim().toLowerCase();
+    if (m.includes('@')) mails.add(m);
+  });
+  if (!mails.size) {
+    if (btn) { btn.innerHTML = '∅ Aucun email'; setTimeout(() => btn.innerHTML = original, 1800); }
+    return;
+  }
+  const txt = [...mails].sort().join('; ');
+  const done = () => {
+    if (btn) { btn.innerHTML = `✓ ${mails.size} email${mails.size>1?'s':''} copié${mails.size>1?'s':''}`; setTimeout(() => btn.innerHTML = original, 2200); }
+  };
+  if (navigator.clipboard?.writeText) {
+    navigator.clipboard.writeText(txt).then(done).catch(() => fallbackCopy(txt, done));
+  } else fallbackCopy(txt, done);
+}
+
+function fallbackCopy(txt, cb) {
+  const ta = document.createElement('textarea');
+  ta.value = txt; ta.style.position = 'fixed'; ta.style.opacity = '0';
+  document.body.appendChild(ta); ta.select();
+  try { document.execCommand('copy'); cb(); } finally { document.body.removeChild(ta); }
 }
 
 /* ============================================================

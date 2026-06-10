@@ -20,6 +20,7 @@ export function saveSnapshot(parsed) {
     sourceFilename: parsed.sourceFilename,
     polices: parsed.polices.map(p => ({
       preneur: p.preneur,
+      mail: p.mail,
       numContrat: p.numContrat,
       produit: p.produit,
       branche: p.branche,
