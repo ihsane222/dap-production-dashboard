@@ -1,18 +1,18 @@
 // ui.js — rendu DOM et interactions (UX refondue)
-import { parseAedesFile } from './parser.js?v=11';
+import { parseAedesFile } from './parser.js?v=12';
 import {
   computeKpisFromAll, productionMensuelleCumulee, mixBranches, classementGestionnaires,
   PALIERS_PRODUCTION, PALIERS_CROISSANCE
-} from './kpis.js?v=11';
+} from './kpis.js?v=12';
 import {
   saveSnapshot, loadSnapshot, loadAllSnapshots, listSnapshotsMeta, deleteSnapshot, clearAll,
   getOverrides, setOverrides, importSnapshot
-} from './snapshots.js?v=11';
+} from './snapshots.js?v=12';
 import {
   renderLineProduction, renderDonutBranches, radialGaugeHTML,
   formatEur, formatPct, formatPctSigned, destroyAllCharts
-} from './charts.js?v=11';
-import { pullAll, pushSnapshot, pushDelete, pushOverrides, CLOUD_OVERRIDES_KEY } from './sync.js?v=11';
+} from './charts.js?v=12';
+import { pullAll, pushSnapshot, pushDelete, pushOverrides, CLOUD_OVERRIDES_KEY } from './sync.js?v=12';
 
 const AVATAR_COLORS = ['#1e3a8a', '#059669', '#d97706', '#7c3aed', '#db2777', '#0891b2', '#dc2626', '#65a30d'];
 
@@ -284,15 +284,42 @@ async function handleUpload(files) {
     }
   }
 
+  // Détecte les snapshots devenus obsolètes : un fichier mensuel suivant (ex : 09-06)
+  // remplace le précédent (ex : 20-05) — même feuille + même année, sourceFilename
+  // différent. Sans ça, les deux cohabitent et la production est doublée.
+  const supersededKeys = [];
+  {
+    const newSig = new Set();
+    for (const k of savedKeys) {
+      try {
+        const s = JSON.parse(localStorage.getItem(k));
+        if (s) newSig.add(`${s.year}::${s.sheetName}`);
+      } catch {}
+    }
+    const newKeySet = new Set(savedKeys);
+    for (const meta of listSnapshotsMeta()) {
+      if (newKeySet.has(meta.key)) continue;
+      if (newSig.has(`${meta.year}::${meta.sheetName}`)) supersededKeys.push(meta.key);
+    }
+    for (const k of supersededKeys) deleteSnapshot(k);
+  }
+  if (supersededKeys.length) {
+    warnings.push(`${supersededKeys.length} snapshot(s) remplacé(s) par les nouveaux fichiers (anciennes versions retirées).`);
+  }
+
   modal.finish({ total: files.length, snapshots: totalSnapshots, warnings, errors });
   refresh();
 
-  // Partage : pousse les snapshots fraîchement importés vers le store commun.
-  // Séquentiel (await) car le backend n8n fait un read-modify-write : deux POST
-  // concurrents se court-circuiteraient. Le webhook ne répond qu'après écriture.
+  // Partage : pousse les snapshots fraîchement importés vers le store commun, puis
+  // propage la suppression des obsolètes. Séquentiel (await) car le backend n8n fait
+  // un read-modify-write : deux POST concurrents se court-circuiteraient. Le webhook
+  // ne répond qu'après écriture.
   for (const key of savedKeys) {
     const raw = localStorage.getItem(key);
     if (raw) await pushSnapshot(JSON.parse(raw));
+  }
+  for (const key of supersededKeys) {
+    await pushDelete(key);
   }
 }
 

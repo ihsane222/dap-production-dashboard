@@ -129,9 +129,9 @@
 </div>
 
 <script type="module">
-import { pullAll } from './src/sync.js?v=11';
-import { computeKpisFromAll, classementGestionnaires, PALIERS_PRODUCTION } from './src/kpis.js?v=11';
-import { formatEur } from './src/charts.js?v=11';
+import { pullAll } from './src/sync.js?v=12';
+import { computeKpisFromAll, classementGestionnaires, PALIERS_PRODUCTION } from './src/kpis.js?v=12';
+import { formatEur } from './src/charts.js?v=12';
 
 const PALETTE = ['#2d4a6f','#3a5e8c','#0ea5e9','#10b981','#8b5cf6','#f59e0b','#ec4899','#14b8a6','#ef4444','#6366f1'];
 const colorFor = (name) => { let h=0; for(const c of name) h=(h*31+c.charCodeAt(0))>>>0; return PALETTE[h%PALETTE.length]; };

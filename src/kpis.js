@@ -33,9 +33,14 @@ export const PALIERS_CROISSANCE = [
  * prendre le montant de 2025 (plus récent) pas celui de 2023.
  */
 function snapshotPriority(snapshot) {
-  // Renouvellement prime la prod (même année) car plus récent
+  // Renouvellement prime la prod (même année) car plus récent.
   const typeBonus = snapshot.type === 'renouvellement' ? 0.5 : 0;
-  return snapshot.year + typeBonus;
+  // snapshotDate comme tiebreaker (< 0.1) : si deux snapshots ont même année + type,
+  // le plus récent gagne. Évite que deux fichiers du même profil (ex: "2026 - 20-05"
+  // puis "2026 - 09-06") soient considérés équivalents → arbitrage non déterministe.
+  const ts = new Date(snapshot.snapshotDate).getTime();
+  const dateBonus = Number.isFinite(ts) ? ts / 1e15 : 0;
+  return snapshot.year + typeBonus + dateBonus;
 }
 
 export function computeKpisFromAll(snapshots, options = {}) {
@@ -84,8 +89,11 @@ export function computeKpisFromAll(snapshots, options = {}) {
   const portefeuilleCalcule = policesActives.reduce((s, p) => s + (p.primeHT || 0), 0);
 
   // Prime Production de l'année cible = polices actives SIGNÉES cette année-là.
-  const productionPolices = allPolices
-    .filter(p => p.active && p.dateSouscription && p.dateSouscription.getFullYear() === targetYear);
+  // ⚠ On part de policesActives (DÉDUPLIQUÉES par contrat) et NON de allPolices,
+  // sinon un contrat présent dans plusieurs snapshots (ex : fichier 20-05 et 09-06
+  // que Julien renvoie en cumulé chaque mois) est compté 2x → production gonflée.
+  const productionPolices = policesActives
+    .filter(p => p.dateSouscription && p.dateSouscription.getFullYear() === targetYear);
   const productionCalculee = productionPolices.reduce((s, p) => s + (p.primeHT || 0), 0);
 
   // L'override Production ne s'applique QU'à l'année courante (la plus récente).
